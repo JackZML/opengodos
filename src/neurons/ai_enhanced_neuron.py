@@ -14,7 +14,7 @@ import time
 
 from src.core.neuron import Neuron
 from src.core.signal import Signal, SignalType, SignalPriority
-from src.ai.llm_service import LLMService, LLMConfig, get_llm_service
+from src.ai.llm_service import AIService, AIConfig, get_ai_service
 
 # 创建logger
 logger = logging.getLogger(__name__)
@@ -43,13 +43,13 @@ class AIEnhancedNeuron(Neuron, ABC):
         neuron_id: str,
         neuron_type: str,
         config: Optional[AINeuronConfig] = None,
-        llm_config: Optional[LLMConfig] = None
+        ai_config: Optional[AIConfig] = None
     ):
         """初始化AI增强神经元"""
         super().__init__(neuron_id, neuron_type)
         
         self.ai_config = config or AINeuronConfig()
-        self.llm_service = get_llm_service(llm_config)
+        self.ai_service = get_ai_service(ai_config)
         
         # AI相关统计
         self.ai_calls = 0
@@ -87,14 +87,14 @@ class AIEnhancedNeuron(Neuron, ABC):
         try:
             # 调用AI
             if self.ai_config.structured_output and self.ai_config.response_format:
-                response = await self.llm_service.structured_completion(
+                response = await self.ai_service.structured_completion(
                     messages=messages,
                     response_format=self.ai_config.response_format,
                     temperature=self.ai_config.temperature
                 )
                 return json.dumps(response)
             else:
-                response = await self.llm_service.chat_completion(
+                response = await self.ai_service.chat_completion(
                     messages=messages,
                     temperature=self.ai_config.temperature,
                     max_tokens=self.ai_config.max_tokens
@@ -484,7 +484,7 @@ async def test_ai_enhanced_neurons():
     
     # 设置环境变量
     import os
-    os.environ["DEEPSEEK_API_KEY"] = "sk-7d220d4ecd05498fbd171a24a8af9644"
+    os.environ["AI_API_KEY"] = "sk-test-key-1234567890abcdef"
     
     # 创建AI决策神经元
     decision_neuron = AIEnhancedNeuronFactory.create_decision_neuron("ai_decision_1")

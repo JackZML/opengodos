@@ -123,7 +123,7 @@ from src.neurons.ai_enhanced_neuron import AIEnhancedNeuron
 ai_neuron = AIEnhancedNeuron(
     name='ai_thinker',
     description='使用AI进行复杂决策的神经元',
-    ai_provider='openai',  # 或 'anthropic', 'local' 等
+    ai_provider='ai-client',  # 或 'ai-client', 'local' 等
     fallback_mode=True     # AI不可用时降级到规则系统
 )
 
@@ -153,9 +153,9 @@ curl -X POST http://127.0.0.1:5000/api/signal \
 ### 配置AI服务
 ```bash
 # .env 文件配置示例
-OPENAI_API_KEY=your_openai_api_key_here
-ANTHROPIC_API_KEY=your_anthropic_api_key_here
-LOCAL_LLM_URL=http://localhost:8000/v1
+AI_API_KEY=your_ai-client_api_key_here
+AI_API_KEY=your_ai-client_api_key_here
+LOCAL_AI_URL=http://localhost:8000/v1
 
 # AI降级配置
 AI_FALLBACK_ENABLED=true
@@ -307,10 +307,10 @@ export FLASK_DEBUG=1
 #### 3. AI服务连接失败
 ```bash
 # 检查API密钥
-echo $OPENAI_API_KEY
+echo $AI_API_KEY
 
 # 测试连接
-python -c "from src.ai.llm_service import LLMService; service = LLMService(); print(service.test_connection())"
+python -c "from src.ai.llm_service import AIService; service = AIService(); print(service.test_connection())"
 
 # 启用降级模式
 export AI_FALLBACK_ENABLED=true

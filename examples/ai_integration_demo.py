@@ -14,9 +14,11 @@ import time
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # 设置环境变量（演示用，实际应从.env文件加载）
-os.environ["DEEPSEEK_API_KEY"] = "sk-7d220d4ecd05498fbd171a24a8af9644"
+# 注意：这是一个示例密钥，请勿使用
+# 实际使用时，请创建.env文件并设置AI_API_KEY环境变量
+os.environ["AI_API_KEY"] = "sk-example-key-do-not-use-real-key-here"
 
-from src.ai.llm_service import LLMService, LLMConfig
+from src.ai.llm_service import AIService, AIConfig
 from src.neurons.ai_enhanced_neuron import (
     AIEnhancedNeuronFactory, 
     AINeuronConfig,
@@ -28,20 +30,20 @@ from src.neurons.emotion_neurons import EmotionNeuronFactory, EmotionSystem
 from src.neurons.memory_neurons import MemoryNeuronFactory, MemorySystem
 
 
-async def demo_llm_service():
-    """演示LLM服务"""
+async def demo_ai_service():
+    """演示AI服务"""
     print("=" * 70)
-    print("🧠 演示1: LLM服务基础功能")
+    print("🧠 演示1: AI服务基础功能")
     print("=" * 70)
     
-    # 创建LLM服务配置
-    config = LLMConfig(
-        api_key=os.getenv("DEEPSEEK_API_KEY"),
+    # 创建AI服务配置
+    config = AIConfig(
+        api_key=os.getenv("AI_API_KEY"),
         cache_enabled=True,
         timeout=30
     )
     
-    async with LLMService(config) as llm:
+    async with AIService(config) as ai:
         # 测试聊天补全
         print("\n🤖 测试聊天补全...")
         messages = [
@@ -49,7 +51,7 @@ async def demo_llm_service():
             {"role": "user", "content": "用一句话介绍数字生命系统。"}
         ]
         
-        response = await llm.chat_completion(messages, temperature=0.7)
+        response = await ai.chat_completion(messages, temperature=0.7)
         print(f"   AI回复: {response}")
         
         # 测试结构化补全
@@ -67,7 +69,7 @@ async def demo_llm_service():
             "surprise": "float"
         }
         
-        structured_response = await llm.structured_completion(
+        structured_response = await ai.structured_completion(
             messages=messages,
             response_format=response_format,
             temperature=0.3
@@ -75,8 +77,8 @@ async def demo_llm_service():
         print(f"   情感分析结果: {json.dumps(structured_response, indent=2, ensure_ascii=False)}")
         
         # 显示统计信息
-        stats = llm.get_stats()
-        print(f"\n📈 LLM服务统计:")
+        stats = ai.get_stats()
+        print(f"\n📈 AI服务统计:")
         print(f"   总调用次数: {stats['total_calls']}")
         print(f"   总Token数: {stats['total_tokens']}")
         print(f"   缓存启用: {stats['cache_enabled']}")
@@ -336,8 +338,8 @@ async def demo_fallback_mode():
     
     print("\n⚠️ 模拟AI服务不可用场景...")
     
-    # 使用无效API密钥创建LLM服务
-    invalid_config = LLMConfig(
+    # 使用无效API密钥创建AI服务
+    invalid_config = AIConfig(
         api_key="invalid_key_123",
         cache_enabled=False
     )
@@ -388,7 +390,7 @@ async def main():
     print("🚀 OpenGodOS AI集成演示")
     print("=" * 70)
     print("演示内容:")
-    print("1. LLM服务基础功能")
+    print("1. AI服务基础功能")
     print("2. AI决策神经元")
     print("3. AI情绪分析神经元")
     print("4. 集成AI的数字生命系统")
@@ -396,8 +398,8 @@ async def main():
     print("=" * 70)
     
     try:
-        # 演示1: LLM服务
-        await demo_llm_service()
+        # 演示1: AI服务
+        await demo_ai_service()
         
         # 演示2: AI决策神经元
         await demo_ai_decision_neuron()
@@ -415,7 +417,7 @@ async def main():
         print("🎉 AI集成演示完成！")
         print("=" * 70)
         print("\n📋 总结:")
-        print("• ✅ LLM服务: 提供统一的AI调用接口")
+        print("• ✅ AI服务: 提供统一的AI调用接口")
         print("• ✅ AI增强神经元: 为特定功能注入AI能力")
         print("• ✅ 混合架构: 规则与AI结合，智能又可靠")
         print("• ✅ 降级模式: AI不可用时系统仍能运行")

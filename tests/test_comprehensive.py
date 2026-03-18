@@ -215,48 +215,48 @@ class TestAIIntegration(unittest.TestCase):
     def setUp(self):
         """测试准备"""
         # 检查API密钥
-        self.has_api_key = bool(os.getenv("DEEPSEEK_API_KEY"))
+        self.has_api_key = bool(os.getenv("AI_API_KEY"))
 
         if self.has_api_key:
-            from src.ai.llm_service import LLMService, LLMConfig
+            from src.ai.llm_service import AIService, AIConfig
             from src.neurons.ai_enhanced_neuron import (
                 AIEnhancedNeuron, AIDecisionNeuron,
                 AIEmotionAnalysisNeuron, AIEnhancedNeuronFactory
             )
 
-            self.LLMService = LLMService
-            self.LLMConfig = LLMConfig
+            self.AIService = AIService
+            self.AIConfig = AIConfig
             self.AIEnhancedNeuron = AIEnhancedNeuron
             self.AIDecisionNeuron = AIDecisionNeuron
             self.AIEmotionAnalysisNeuron = AIEmotionAnalysisNeuron
             self.AIEnhancedNeuronFactory = AIEnhancedNeuronFactory
 
-    @unittest.skipIf(not os.getenv("DEEPSEEK_API_KEY"), "需要DEEPSEEK_API_KEY环境变量")
-    def test_llm_service(self):
-        """测试LLM服务"""
-        config = self.LLMConfig(
-            api_key=os.getenv("DEEPSEEK_API_KEY"),
+    @unittest.skipIf(not os.getenv("AI_API_KEY"), "需要AI_API_KEY环境变量")
+    def test_ai_service(self):
+        """测试AI服务"""
+        config = self.AIConfig(
+            api_key=os.getenv("AI_API_KEY"),
             cache_enabled=True,
             timeout=30
         )
 
-        async def test_llm():
-            async with self.LLMService(config) as llm:
+        async def test_ai():
+            async with self.AIService(config) as ai:
                 # 测试聊天补全
                 messages = [
                     {"role": "user", "content": "用一句话说你好"}
                 ]
 
-                response = await llm.chat_completion(messages, temperature=0.7)
+                response = await ai.chat_completion(messages, temperature=0.7)
 
                 self.assertIsInstance(response, str)
                 self.assertGreater(len(response), 0)
 
                 # 测试统计信息
-                stats = llm.get_stats()
+                stats = ai.get_stats()
                 self.assertGreaterEqual(stats["total_calls"], 1)
 
-        asyncio.run(test_llm())
+        asyncio.run(test_ai())
 
     def test_ai_enhanced_neuron_fallback(self):
         """测试AI增强神经元降级模式"""

@@ -18,37 +18,37 @@
 
 ## AI服务架构
 
-### LLMService
-统一的AI调用服务，封装DeepSeek API调用：
+### AIService
+统一的AI调用服务，封装AI服务调用：
 
 ```python
-from src.ai.llm_service import LLMService, LLMConfig
+from src.ai.llm_service import AIService, AIConfig
 
-# 配置LLM服务
-config = LLMConfig(
-    api_key=os.getenv("DEEPSEEK_API_KEY"),
-    base_url="https://api.deepseek.com/v1",
+# 配置AI服务
+config = AIConfig(
+    api_key=os.getenv("AI_API_KEY"),
+    base_url="https://api.ai-service.com/v1",
     timeout=30,
     cache_enabled=True
 )
 
-# 使用LLM服务
-async with LLMService(config) as llm:
+# 使用AI服务
+async with AIService(config) as ai:
     # 聊天补全
-    response = await llm.chat_completion(
+    response = await ai.chat_completion(
         messages=[{"role": "user", "content": "你好"}],
         temperature=0.7
     )
     
     # 结构化补全
-    structured = await llm.structured_completion(
+    structured = await ai.structured_completion(
         messages=[{"role": "user", "content": "分析情感"}],
         response_format={"joy": "float", "sadness": "float"}
     )
 ```
 
 ### 密钥安全
-- API密钥通过环境变量`DEEPSEEK_API_KEY`传入
+- API密钥通过环境变量`AI_API_KEY`传入
 - 代码中绝不硬编码密钥
 - 提供`.env.example`文件示例
 
@@ -177,7 +177,7 @@ class AIVisionNeuron(AIEnhancedNeuron):
 ## 安全与隐私
 
 ### 密钥保护
-1. **环境变量**: `export DEEPSEEK_API_KEY="your_key"`
+1. **环境变量**: `export AI_API_KEY="your_key"`
 2. **.env文件**: 开发环境使用`.env`文件（不提交到Git）
 3. **密钥轮换**: 支持定期更换密钥
 
@@ -188,7 +188,7 @@ class AIVisionNeuron(AIEnhancedNeuron):
 
 ### 隔离执行
 1. **进程隔离**: 每个神经元在独立进程中运行
-2. **权限控制**: LLMService有严格权限控制
+2. **权限控制**: AIService有严格权限控制
 3. **审计日志**: 所有AI调用记录日志
 
 ## 性能优化
@@ -196,10 +196,10 @@ class AIVisionNeuron(AIEnhancedNeuron):
 ### 缓存策略
 ```python
 # 启用缓存
-config = LLMConfig(cache_enabled=True, cache_ttl=3600)
+config = AIConfig(cache_enabled=True, cache_ttl=3600)
 
 # 自定义缓存键
-response = await llm.chat_completion(
+response = await ai.chat_completion(
     messages=messages,
     cache_key=f"emotion_{text_hash}"
 )
@@ -234,7 +234,7 @@ async def process_multiple(self, signals: List[Signal]):
 ### Token监控
 ```python
 # 获取统计信息
-stats = llm_service.get_stats()
+stats = ai_service.get_stats()
 print(f"总调用: {stats['total_calls']}")
 print(f"总Token: {stats['total_tokens']}")
 print(f"缓存命中: {stats['cache_hits']}")
@@ -257,8 +257,8 @@ class CostMonitor:
 ### 环境配置
 ```bash
 # .env.example
-DEEPSEEK_API_KEY=your_api_key_here
-DEEPSEEK_BASE_URL=https://api.deepseek.com/v1
+AI_API_KEY=your_api_key_here
+AI_BASE_URL=https://api.ai-service.com/v1
 AI_CACHE_ENABLED=true
 AI_TIMEOUT=30
 AI_MAX_RETRIES=3
@@ -270,7 +270,7 @@ AI_MAX_RETRIES=3
 FROM python:3.11
 
 # 设置环境变量
-ENV DEEPSEEK_API_KEY=""
+ENV AI_API_KEY=""
 ENV AI_CACHE_ENABLED="true"
 
 # 安装依赖
@@ -346,20 +346,20 @@ evaluation_neuron = RuleBasedNeuron("evaluator", "rule_evaluation")
 #### 1. API密钥错误
 ```bash
 # 检查环境变量
-echo $DEEPSEEK_API_KEY
+echo $AI_API_KEY
 
 # 测试连接
-python -c "import os; print('Key exists' if os.getenv('DEEPSEEK_API_KEY') else 'No key')"
+python -c "import os; print('Key exists' if os.getenv('AI_API_KEY') else 'No key')"
 ```
 
 #### 2. 网络超时
 ```python
 # 增加超时时间
-config = LLMConfig(timeout=60, max_retries=5)
+config = AIConfig(timeout=60, max_retries=5)
 
 # 检查网络
 import requests
-response = requests.get("https://api.deepseek.com", timeout=10)
+response = requests.get("https://api.ai-service.com", timeout=10)
 ```
 
 #### 3. 响应解析失败
@@ -375,12 +375,12 @@ except json.JSONDecodeError:
 #### 4. Token超限
 ```python
 # 监控使用量
-stats = llm_service.get_stats()
+stats = ai_service.get_stats()
 if stats['total_tokens'] > 100000:
     logger.warning("Token使用量接近限制")
     
 # 启用缓存减少调用
-config = LLMConfig(cache_enabled=True)
+config = AIConfig(cache_enabled=True)
 ```
 
 ## 最佳实践
@@ -406,10 +406,10 @@ config = LLMConfig(cache_enabled=True)
 
 ### 添加新AI提供商
 ```python
-class CustomLLMService(LLMService):
+class CustomAIService(AIService):
     async def chat_completion(self, messages, **kwargs):
         # 自定义实现
-        if self.config.provider == LLMProvider.CUSTOM:
+        if self.config.provider == AIProvider.CUSTOM:
             return await self._call_custom_api(messages)
         else:
             return await super().chat_completion(messages, **kwargs)

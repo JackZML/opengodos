@@ -1,5 +1,5 @@
 """
-LLMService - DeepSeek API服务封装
+AIService - AI服务封装
 
 为神经元提供统一的AI调用接口，确保密钥安全、调用高效、可观测。
 """
@@ -20,30 +20,29 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-class LLMProvider(Enum):
-    """支持的LLM提供商"""
-    DEEPSEEK = "deepseek"
-    OPENAI = "openai"
+class AIProvider(Enum):
+    """支持的AI服务提供商"""
+    AI_SERVICE = "ai_service"
     LOCAL = "local"
 
 
 @dataclass
-class LLMConfig:
-    """LLM配置"""
-    provider: LLMProvider = LLMProvider.DEEPSEEK
+class AIConfig:
+    """AI服务配置"""
+    provider: AIProvider = AIProvider.AI_SERVICE
     api_key: str = None
-    base_url: str = "https://api.deepseek.com/v1"
+    base_url: str = "https://api.ai-service.com/v1"
     timeout: int = 30
     max_retries: int = 3
     cache_enabled: bool = True
     cache_ttl: int = 3600  # 缓存有效期（秒）
 
 
-class LLMService:
-    """LLM服务封装"""
+class AIService:
+    """AI服务封装"""
     
-    def __init__(self, config: Optional[LLMConfig] = None):
-        """初始化LLM服务"""
+    def __init__(self, config: Optional[AIConfig] = None):
+        """初始化AI服务"""
         self.config = config or self._load_default_config()
         self.cache = {} if self.config.cache_enabled else None
         self.session = None
@@ -54,16 +53,16 @@ class LLMService:
         if not self.config.api_key:
             logger.warning("⚠️ 未设置API密钥，AI功能将不可用")
     
-    def _load_default_config(self) -> LLMConfig:
+    def _load_default_config(self) -> AIConfig:
         """加载默认配置"""
-        api_key = os.getenv("DEEPSEEK_API_KEY")
+        api_key = os.getenv("AI_API_KEY")
         if not api_key:
-            logger.warning("⚠️ 环境变量DEEPSEEK_API_KEY未设置")
+            logger.warning("⚠️ 环境变量AI_API_KEY未设置")
         
-        return LLMConfig(
-            provider=LLMProvider.DEEPSEEK,
+        return AIConfig(
+            provider=AIProvider.AI_SERVICE,
             api_key=api_key,
-            base_url="https://api.deepseek.com/v1"
+            base_url="https://api.ai-service.com/v1"
         )
     
     async def __aenter__(self):
@@ -79,14 +78,14 @@ class LLMService:
         """连接服务"""
         if not self.session:
             self.session = aiohttp.ClientSession()
-            logger.info("✅ LLMService连接已建立")
+            logger.info("✅ AIService连接已建立")
     
     async def disconnect(self):
         """断开连接"""
         if self.session:
             await self.session.close()
             self.session = None
-            logger.info("✅ LLMService连接已关闭")
+            logger.info("✅ AIService连接已关闭")
     
     def _generate_cache_key(self, messages: List[Dict], temperature: float) -> str:
         """生成缓存键"""
@@ -109,7 +108,7 @@ class LLMService:
         聊天补全
         
         Args:
-            messages: OpenAI格式的消息列表
+            messages: AI服务格式的消息列表
             temperature: 温度参数
             max_tokens: 最大token数
             cache_key: 可选缓存键
@@ -142,7 +141,7 @@ class LLMService:
         }
         
         payload = {
-            "model": "deepseek-chat",
+            "model": "ai-model",
             "messages": messages,
             "temperature": temperature,
             "max_tokens": max_tokens,
@@ -207,7 +206,7 @@ class LLMService:
         结构化补全
         
         Args:
-            messages: OpenAI格式的消息列表
+            messages: AI服务格式的消息列表
             response_format: 期望的JSON Schema
             temperature: 温度参数
             
@@ -279,36 +278,36 @@ class LLMService:
             logger.info("🗑️ 缓存已清空")
 
 
-# 全局LLM服务实例
-_global_llm_service = None
+# 全局AI服务实例
+_global_ai_service = None
 
 
-def get_llm_service(config: Optional[LLMConfig] = None) -> LLMService:
-    """获取全局LLM服务实例"""
-    global _global_llm_service
+def get_ai_service(config: Optional[AIConfig] = None) -> AIService:
+    """获取全局AI服务实例"""
+    global _global_ai_service
     
-    if _global_llm_service is None:
-        _global_llm_service = LLMService(config)
+    if _global_ai_service is None:
+        _global_ai_service = AIService(config)
     
-    return _global_llm_service
+    return _global_ai_service
 
 
-async def test_llm_service():
-    """测试LLM服务"""
-    print("🧪 测试LLM服务...")
+async def test_ai_service():
+    """测试AI服务"""
+    print("🧪 测试AI服务...")
     
     # 使用环境变量中的密钥
-    config = LLMConfig(
-        api_key=os.getenv("DEEPSEEK_API_KEY")
+    config = AIConfig(
+        api_key=os.getenv("AI_API_KEY")
     )
     
-    async with LLMService(config) as llm:
+    async with AIService(config) as ai:
         # 测试聊天补全
         messages = [
             {"role": "user", "content": "你好，请用一句话介绍自己。"}
         ]
         
-        response = await llm.chat_completion(messages, temperature=0.7)
+        response = await ai.chat_completion(messages, temperature=0.7)
         print(f"🤖 AI回复: {response}")
         
         # 测试结构化补全
@@ -322,20 +321,20 @@ async def test_llm_service():
             "anger": "float"
         }
         
-        structured_response = await llm.structured_completion(
+        structured_response = await ai.structured_completion(
             messages=messages,
             response_format=response_format
         )
         print(f"📊 结构化响应: {structured_response}")
         
         # 显示统计信息
-        stats = llm.get_stats()
+        stats = ai.get_stats()
         print(f"📈 统计: {stats}")
 
 
 if __name__ == "__main__":
     # 设置环境变量（测试用）
-    os.environ["DEEPSEEK_API_KEY"] = "sk-7d220d4ecd05498fbd171a24a8af9644"
+    os.environ["AI_API_KEY"] = "sk-test-key-1234567890abcdef"
     
     # 运行测试
-    asyncio.run(test_llm_service())
+    asyncio.run(test_ai_service())
