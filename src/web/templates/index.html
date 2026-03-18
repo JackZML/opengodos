@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenGodOS - 数字生命操作系统</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 导航栏 -->
+        <nav class="navbar">
+            <div class="nav-brand">
+                <i class="fas fa-brain"></i>
+                <span>OpenGodOS</span>
+            </div>
+            <div class="nav-menu">
+                <a href="/" class="nav-item active">
+                    <i class="fas fa-home"></i> 首页
+                </a>
+                <a href="/dashboard" class="nav-item">
+                    <i class="fas fa-tachometer-alt"></i> 控制面板
+                </a>
+                <a href="/topology" class="nav-item">
+                    <i class="fas fa-project-diagram"></i> 拓扑编辑器
+                </a>
+                <a href="/neurons" class="nav-item">
+                    <i class="fas fa-brain"></i> 神经元管理
+                </a>
+                <a href="/simulation" class="nav-item">
+                    <i class="fas fa-play-circle"></i> 模拟控制
+                </a>
+                <a href="/analytics" class="nav-item">
+                    <i class="fas fa-chart-line"></i> 分析面板
+                </a>
+                <a href="/docs" class="nav-item">
+                    <i class="fas fa-book"></i> 文档
+                </a>
+            </div>
+            <div class="nav-user">
+                <span class="user-name">OpenGodOS</span>
+                <i class="fas fa-user-circle"></i>
+            </div>
+        </nav>
+
+        <!-- 主内容 -->
+        <main class="main-content">
+            <div class="hero-section">
+                <h1 class="hero-title">
+                    <i class="fas fa-brain"></i>
+                    OpenGodOS
+                </h1>
+                <p class="hero-subtitle">下一代数字生命操作系统</p>
+                <p class="hero-description">
+                    OpenGodOS是一个基于神经拓扑的数字生命框架，提供可视化编辑、高性能模拟和智能分析功能。
+                </p>
+                <div class="hero-actions">
+                    <a href="/topology" class="btn btn-primary btn-lg">
+                        <i class="fas fa-play"></i> 开始创建
+                    </a>
+                    <a href="/docs" class="btn btn-outline btn-lg">
+                        <i class="fas fa-book"></i> 查看文档
+                    </a>
+                </div>
+            </div>
+
+            <div class="features-section">
+                <h2 class="section-title">核心功能</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-project-diagram"></i>
+                        </div>
+                        <h3 class="feature-title">可视化拓扑编辑</h3>
+                        <p class="feature-description">
+                            直观的可视化编辑器，支持拖放式创建和编辑神经网络拓扑结构。
+                        </p>
+                        <a href="/topology" class="feature-link">开始编辑 →</a>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <h3 class="feature-title">智能神经元系统</h3>
+                        <p class="feature-description">
+                            支持多种神经元类型和连接方式，包括兴奋性、抑制性和调节性连接。
+                        </p>
+                        <a href="/neurons" class="feature-link">管理神经元 →</a>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-play-circle"></i>
+                        </div>
+                        <h3 class="feature-title">高性能模拟引擎</h3>
+                        <p class="feature-description">
+                            实时模拟神经网络活动，支持大规模并行计算和实时可视化。
+                        </p>
+                        <a href="/simulation" class="feature-link">开始模拟 →</a>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3 class="feature-title">深度分析工具</h3>
+                        <p class="feature-description">
+                            提供全面的性能分析和优化建议，帮助改进网络结构。
+                        </p>
+                        <a href="/analytics" class="feature-link">查看分析 →</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-section">
+                <h2 class="section-title">系统状态</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-neurons">0</div>
+                        <div class="stat-label">活跃神经元</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-connections">0</div>
+                        <div class="stat-label">活跃连接</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-simulations">0</div>
+                        <div class="stat-label">运行模拟</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-performance">100%</div>
+                        <div class="stat-label">系统性能</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="quick-start-section">
+                <h2 class="section-title">快速开始</h2>
+                <div class="quick-start-steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h3>创建拓扑</h3>
+                            <p>使用拓扑编辑器创建你的第一个神经网络结构</p>
+                            <a href="/topology" class="btn btn-sm btn-outline">开始创建</a>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h3>配置参数</h3>
+                            <p>设置神经元参数、连接权重和学习率</p>
+                            <a href="/neurons" class="btn btn-sm btn-outline">配置参数</a>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h3>运行模拟</h3>
+                            <p>启动模拟并观察网络行为</p>
+                            <a href="/simulation" class="btn btn-sm btn-outline">开始模拟</a>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h3>分析结果</h3>
+                            <p>查看分析报告并优化网络结构</p>
+                            <a href="/analytics" class="btn btn-sm btn-outline">查看分析</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- 页脚 -->
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <i class="fas fa-brain"></i>
+                    <span>OpenGodOS</span>
+                </div>
+                <div class="footer-links">
+                    <a href="/docs">文档</a>
+                    <a href="https://github.com/opengodos" target="_blank">GitHub</a>
+                    <a href="/about">关于</a>
+                    <a href="/contact">联系</a>
+                </div>
+                <div class="footer-copyright">
+                    © 2026 OpenGodOS. 开源数字生命框架.
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        // 更新系统状态
+        function updateSystemStats() {
+            // 模拟数据
+            document.getElementById('stat-neurons').textContent = Math.floor(Math.random() * 1000) + 500;
+            document.getElementById('stat-connections').textContent = Math.floor(Math.random() * 5000) + 1000;
+            document.getElementById('stat-simulations').textContent = Math.floor(Math.random() * 10) + 1;
+            document.getElementById('stat-performance').textContent = '98%';
+        }
+
+        // 初始更新
+        updateSystemStats();
+        
+        // 每10秒更新一次
+        setInterval(updateSystemStats, 10000);
+    </script>
+</body>
+</html>

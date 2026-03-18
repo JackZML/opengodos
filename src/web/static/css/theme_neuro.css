@@ -1,0 +1,618 @@
+/* 
+OpenGodOS 神经科技主题样式
+数字生命、神经拓扑专用炫酷样式
+*/
+
+:root {
+    /* 神经科技配色 */
+    --neuro-primary: #00f3ff;
+    --neuro-secondary: #9d00ff;
+    --neuro-accent: #ff00ff;
+    --neuro-dark: #0a0a1a;
+    --neuro-darker: #050510;
+    --neuro-light: #e0f7ff;
+    --neuro-glow: rgba(0, 243, 255, 0.6);
+    
+    /* 神经脉冲动画 */
+    --pulse-speed: 2s;
+    --neuron-glow: 0 0 20px var(--neuro-primary);
+}
+
+/* 基础重置 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+    background: linear-gradient(135deg, var(--neuro-darker) 0%, var(--neuro-dark) 100%);
+    color: var(--neuro-light);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+}
+
+/* 神经脉冲背景 */
+.neuro-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    overflow: hidden;
+}
+
+.neuro-pulse {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--neuro-primary) 0%, transparent 70%);
+    animation: neuroPulse var(--pulse-speed) infinite;
+    opacity: 0.1;
+}
+
+@keyframes neuroPulse {
+    0% {
+        transform: scale(0.5);
+        opacity: 0.1;
+    }
+    50% {
+        opacity: 0.3;
+    }
+    100% {
+        transform: scale(1.5);
+        opacity: 0;
+    }
+}
+
+/* 数字生命粒子 */
+.neuro-particle {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: var(--neuro-primary);
+    border-radius: 50%;
+    animation: float 20s infinite linear;
+    opacity: 0.3;
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(100vh) translateX(0);
+    }
+    100% {
+        transform: translateY(-100vh) translateX(100px);
+    }
+}
+
+/* 导航栏 */
+.neuro-navbar {
+    background: rgba(10, 10, 26, 0.8);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(0, 243, 255, 0.2);
+    padding: 1rem 2rem;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.logo-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(45deg, var(--neuro-primary), var(--neuro-secondary));
+    border-radius: 50%;
+    position: relative;
+    animation: rotate 10s infinite linear;
+}
+
+.logo-icon::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+    background: var(--neuro-dark);
+    border-radius: 50%;
+}
+
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.logo-text {
+    font-size: 1.5rem;
+    font-weight: bold;
+    background: linear-gradient(45deg, var(--neuro-primary), var(--neuro-secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 10px var(--neuro-glow);
+}
+
+.nav-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+}
+
+.nav-link {
+    color: var(--neuro-light);
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.nav-link:hover {
+    color: var(--neuro-primary);
+    background: rgba(0, 243, 255, 0.1);
+}
+
+.nav-link.active {
+    color: var(--neuro-primary);
+    background: rgba(0, 243, 255, 0.2);
+}
+
+.nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 2px;
+    background: var(--neuro-primary);
+    box-shadow: var(--neuron-glow);
+}
+
+/* 主容器 */
+.main-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 2rem;
+}
+
+/* 英雄区域 */
+.hero-section {
+    text-align: center;
+    padding: 4rem 0;
+    position: relative;
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    background: linear-gradient(45deg, var(--neuro-primary), var(--neuro-accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 30px var(--neuro-glow);
+}
+
+.hero-subtitle {
+    font-size: 1.2rem;
+    color: rgba(224, 247, 255, 0.8);
+    max-width: 600px;
+    margin: 0 auto 2rem;
+    line-height: 1.6;
+}
+
+/* 神经卡片 */
+.neuro-card {
+    background: rgba(10, 10, 26, 0.6);
+    border: 1px solid rgba(0, 243, 255, 0.2);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.neuro-card:hover {
+    border-color: var(--neuro-primary);
+    box-shadow: 0 0 30px rgba(0, 243, 255, 0.2);
+    transform: translateY(-5px);
+}
+
+.neuro-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 243, 255, 0.1), transparent);
+    transition: left 0.5s ease;
+}
+
+.neuro-card:hover::before {
+    left: 100%;
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.card-icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(45deg, var(--neuro-primary), var(--neuro-secondary));
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: var(--neuro-dark);
+}
+
+.card-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--neuro-primary);
+}
+
+/* 仪表板网格 */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin: 2rem 0;
+}
+
+/* 统计卡片 */
+.stats-card {
+    background: rgba(10, 10, 26, 0.8);
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid rgba(0, 243, 255, 0.1);
+}
+
+.stats-value {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: var(--neuro-primary);
+    margin: 0.5rem 0;
+    text-shadow: 0 0 10px var(--neuro-glow);
+}
+
+.stats-label {
+    color: rgba(224, 247, 255, 0.7);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* 按钮样式 */
+.neuro-btn {
+    background: linear-gradient(45deg, var(--neuro-primary), var(--neuro-secondary));
+    color: var(--neuro-dark);
+    border: none;
+    padding: 0.8rem 2rem;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.neuro-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(0, 243, 255, 0.4);
+}
+
+.neuro-btn:active {
+    transform: translateY(0);
+}
+
+.neuro-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.neuro-btn:hover::before {
+    left: 100%;
+}
+
+/* 神经连接线 */
+.neuro-connection {
+    position: relative;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--neuro-primary), transparent);
+    margin: 2rem 0;
+}
+
+.neuro-connection::before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: 0;
+    width: 8px;
+    height: 8px;
+    background: var(--neuro-primary);
+    border-radius: 50%;
+    animation: pulseDot 2s infinite;
+}
+
+@keyframes pulseDot {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(0, 243, 255, 0.7);
+    }
+    50% {
+        box-shadow: 0 0 0 10px rgba(0, 243, 255, 0);
+    }
+}
+
+/* 神经节点 */
+.neuro-node {
+    width: 60px;
+    height: 60px;
+    background: radial-gradient(circle at 30% 30%, var(--neuro-primary), var(--neuro-secondary));
+    border-radius: 50%;
+    position: relative;
+    animation: neuronPulse 3s infinite;
+    box-shadow: 0 0 30px var(--neuro-primary);
+}
+
+@keyframes neuronPulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 30px var(--neuro-primary);
+    }
+    50% {
+        transform: scale(1.1);
+        box-shadow: 0 0 50px var(--neuro-primary);
+    }
+}
+
+.neuro-node::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+    background: var(--neuro-dark);
+    border-radius: 50%;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.5rem;
+    }
+    
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .nav-links {
+        gap: 1rem;
+    }
+    
+    .main-container {
+        padding: 0 1rem;
+    }
+}
+
+/* 加载动画 */
+.loading-neuron {
+    width: 50px;
+    height: 50px;
+    margin: 2rem auto;
+    position: relative;
+}
+
+.loading-neuron::before,
+.loading-neuron::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    animation: loadingPulse 1.5s infinite;
+}
+
+.loading-neuron::before {
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 243, 255, 0.2);
+    animation-delay: 0s;
+}
+
+.loading-neuron::after {
+    width: 70%;
+    height: 70%;
+    top: 15%;
+    left: 15%;
+    background: rgba(0, 243, 255, 0.4);
+    animation-delay: 0.5s;
+}
+
+@keyframes loadingPulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.2);
+        opacity: 0.5;
+    }
+}
+
+/* 神经科技表格 */
+.neuro-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+}
+
+.neuro-table th {
+    background: rgba(0, 243, 255, 0.1);
+    color: var(--neuro-primary);
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 2px solid var(--neuro-primary);
+}
+
+.neuro-table td {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(0, 243, 255, 0.1);
+}
+
+.neuro-table tr:hover {
+    background: rgba(0, 243, 255, 0.05);
+}
+
+/* 神经科技表单 */
+.neuro-input {
+    background: rgba(10, 10, 26, 0.8);
+    border: 1px solid rgba(0, 243, 255, 0.2);
+    border-radius: 6px;
+    padding: 0.8rem 1rem;
+    color: var(--neuro-light);
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+.neuro-input:focus {
+    outline: none;
+    border-color: var(--neuro-primary);
+    box-shadow: 0 0 10px rgba(0, 243, 255, 0.2);
+}
+
+/* 神经科技标签 */
+.neuro-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--neuro-primary);
+    font-weight: bold;
+}
+
+/* 神经科技进度条 */
+.neuro-progress {
+    width: 100%;
+    height: 8px;
+    background: rgba(10, 10, 26, 0.8);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 1rem 0;
+}
+
+.neuro-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--neuro-primary), var(--neuro-secondary));
+    border-radius: 4px;
+    position: relative;
+    animation: progressGlow 2s infinite;
+}
+
+@keyframes progressGlow {
+    0%, 100% {
+        box-shadow: 0 0 10px var(--neuro-primary);
+    }
+    50% {
+        box-shadow: 0 0 20px var(--neuro-primary);
+    }
+}
+
+/* 神经科技警告框 */
+.neuro-alert {
+    background: rgba(0, 243, 255, 0.1);
+    border: 1px solid var(--neuro-primary);
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 1rem 0;
+    position: relative;
+}
+
+.neuro-alert::before {
+    content: '⚡';
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--neuro-primary);
+}
+
+.neuro-alert-content {
+    margin-left: 2rem;
+}
+
+/* 神经科技工具提示 */
+.neuro-tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.neuro-tooltip:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--neuro-dark);
+    color: var(--neuro-light);
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    border: 1px solid var(--neuro-primary);
+    z-index: 1000;
+}
+
+/* 神经科技模态框 */
+.neuro-modal {
+    position: fixed 
+ / *   u��7h_  * /  
+ . n e u r o - f o o t e r   {  
+         b a c k g r o u n d :   r g b a ( 5 ,   5 ,   1 6 ,   0 . 9 ) ;  
+         b o r d e r - t o p :   1 p x   s o l i d   r g b a ( 0 ,   2 4 3 ,   2 5 5 ,   0 . 2 ) ;  
+         p a d d i n g :   3 r e m   2 r e m ;  
+         m a r g i n - t o p :   4 r e m ;  
+         p o s i t i o n :   r e l a t i v e ;  
+         o v e r f l o w :   h i d d e n ;  
+ }  
+ . n e u r o - f o o t e r : : b e f o r e   {  
+         c o n t e n t :   ' ' ;  
+         p o s i t i o n :   a b s o l u t e ;  
+         t o p :   0 ;  
+         l e f t :   0 ;  
+         w i d t h :   1 0 0 % ;  
+         h e i g h t :   2 p x ;  
+         b a c k g r o u n d :   l i n e a r - g r a d i e n t ( 9 0 d e g ,   t r a n s p a r e n t ,   v a r ( - - n e u r o - p r i m a r y ) ,   t r a n s p a r e n t ) ;  
+         a n i m a t i o n :   p u l s e L i n e   3 s   i n f i n i t e ;  
+ }  
+ 

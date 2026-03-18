@@ -1,0 +1,101 @@
+                node.style.top = `${Math.random() * 100}%`;
+                node.style.animationDelay = `${Math.random() * 3}s`;
+                canvas.appendChild(node);
+                nodes.push(node);
+            }
+            
+            // 创建神经连接
+            for (let i = 0; i < 20; i++) {
+                const node1 = nodes[Math.floor(Math.random() * nodes.length)];
+                const node2 = nodes[Math.floor(Math.random() * nodes.length)];
+                
+                if (node1 !== node2) {
+                    const x1 = parseFloat(node1.style.left);
+                    const y1 = parseFloat(node1.style.top);
+                    const x2 = parseFloat(node2.style.left);
+                    const y2 = parseFloat(node2.style.top);
+                    
+                    const dx = x2 - x1;
+                    const dy = y2 - y1;
+                    const length = Math.sqrt(dx * dx + dy * dy);
+                    const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+                    
+                    const connection = document.createElement('div');
+                    connection.className = 'neuron-connection';
+                    connection.style.left = `${x1}%`;
+                    connection.style.top = `${y1}%`;
+                    connection.style.width = `${length}%`;
+                    connection.style.transform = `rotate(${angle}deg)`;
+                    connection.style.opacity = `${0.2 + Math.random() * 0.3}`;
+                    
+                    canvas.appendChild(connection);
+                    connections.push(connection);
+                }
+            }
+        }
+        
+        // 创建神经脉冲背景
+        function createNeuroBackground() {
+            const background = document.getElementById('neuroBackground');
+            
+            // 创建脉冲点
+            for (let i = 0; i < 15; i++) {
+                const pulse = document.createElement('div');
+                pulse.className = 'neuro-pulse';
+                pulse.style.left = `${Math.random() * 100}%`;
+                pulse.style.top = `${Math.random() * 100}%`;
+                pulse.style.width = `${100 + Math.random() * 200}px`;
+                pulse.style.height = pulse.style.width;
+                pulse.style.animationDelay = `${Math.random() * 2}s`;
+                background.appendChild(pulse);
+            }
+            
+            // 创建粒子
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'neuro-particle';
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.top = `${Math.random() * 100}%`;
+                particle.style.animationDelay = `${Math.random() * 20}s`;
+                particle.style.animationDuration = `${10 + Math.random() * 20}s`;
+                background.appendChild(particle);
+            }
+        }
+        
+        // 更新仪表板数据
+        function updateDashboard() {
+            // 模拟动态数据
+            document.getElementById('neuronCount').textContent = 
+                Math.floor(500 + Math.random() * 500).toLocaleString();
+            
+            document.getElementById('connectionCount').textContent = 
+                Math.floor(2000 + Math.random() * 3000).toLocaleString();
+            
+            document.getElementById('signalSpeed').textContent = 
+                Math.floor(400000 + Math.random() * 100000).toLocaleString();
+            
+            document.getElementById('memoryUsage').textContent = 
+                `${Math.floor(30 + Math.random() * 40)}%`;
+            
+            // 每秒更新一次
+            setTimeout(updateDashboard, 1000);
+        }
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            createTopologyBackground();
+            createNeuroBackground();
+            updateDashboard();
+            
+            // 添加鼠标跟随效果
+            document.addEventListener('mousemove', function(e) {
+                const x = e.clientX / window.innerWidth;
+                const y = e.clientY / window.innerHeight;
+                
+                document.documentElement.style.setProperty('--mouse-x', x);
+                document.documentElement.style.setProperty('--mouse-y', y);
+            });
+        });
+    </script>
+</body>
+</html>

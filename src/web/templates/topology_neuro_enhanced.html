@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenGodOS - 神经拓扑编辑器</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme_neuro.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme_neuro_footer.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        /* 神经拓扑编辑器专用样式 */
+        .topology-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background: linear-gradient(135deg, var(--neuro-darker) 0%, var(--neuro-dark) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* 神经科技工具栏 */
+        .neuro-toolbar {
+            background: rgba(10, 10, 26, 0.9);
+            border-bottom: 1px solid rgba(0, 243, 255, 0.3);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+        
+        .toolbar-left, .toolbar-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .neuro-tool-btn {
+            background: rgba(0, 243, 255, 0.1);
+            border: 1px solid var(--neuro-primary);
+            color: var(--neuro-primary);
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .neuro-tool-btn:hover {
+            background: var(--neuro-primary);
+            color: var(--neuro-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 243, 255, 0.4);
+        }
+        
+        .neuro-tool-btn.active {
+            background: var(--neuro-primary);
+            color: var(--neuro-dark);
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.6);
+        }
+        
+        /* 神经拓扑画布容器 */
+        .topology-canvas-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #topology-canvas {
+            width: 100%;
+            height: 100%;
+            background: rgba(5, 5, 16, 0.3);
+            position: relative;
+        }
+        
+        /* 神经节点样式 */
+        .neuron-node {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, var(--neuro-primary), var(--neuro-secondary));
+            border: 2px solid var(--neuro-primary);
+            box-shadow: 0 0 30px var(--neuro-primary);
+            cursor: move;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--neuro-dark);
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+        
+        .neuron-node:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 50px var(--neuro-primary);
+        }
+        
+        .neuron-node.selected {
+            border-color: var(--neuro-accent);
+            box-shadow: 0 0 40px var(--neuro-accent);
+            animation: neuronPulse 1s infinite;
+        }
+        
+        @keyframes neuronPulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+        
+        /* 神经连接线 */
+        .neuron-connection {
+            position: absolute;
+            pointer-events: none;
+            z-index: 5;
+        }
+        
+        .connection-line {
+            stroke: var(--neuro-primary);
+            stroke-width: 2;
+            stroke-dasharray: 5;
+            animation: connectionFlow 2s linear infinite;
+            filter: drop-shadow(0 0 5px var(--neuro-primary));
+        }
+        
+        @keyframes connectionFlow {
+            0% {
+                stroke-dashoffset: 20;
+            }
+            100% {
+                stroke-dashoffset: 0;
+            }
+        }
+        
+        /* 神经属性面板 */
+        .neuro-properties {
+            position: absolute;
+            right: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(10, 10, 26, 0.9);
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            border-radius: 15px;
+            padding: 2rem;
+            width: 300px;
+            backdrop-filter: blur(10px);
+            z-index: 50;
+        }
+        
+        .properties-header {
+            color: var(--neuro-primary);
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid rgba(0, 243, 255, 0.3);
+            padding-bottom: 0.5rem;
+        }
+        
+        .property-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .property-label {
+            color: rgba(224, 247, 255, 0.8);
+            margin-bottom: 0.5rem;
+            display: block;
+            font-size: 0.9rem;
+        }
+        
+        .neuro-slider {
+            width: 100%;
+            height: 6px;
+            background: rgba(0, 243, 255, 0.1);
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .neuro-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--neuro-primary);
+            cursor: pointer;
+            box-shadow: 0 0 10px var(--neuro-primary);
+        }
+        
+        .neuro-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+        
+        .neuro-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .neuro-switch-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 243, 255, 0.1);
+            transition: .4s;
+            border-radius: 34px;
+            border: 1px solid var(--neuro-primary);
+        }
+        
+        .neuro-switch-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 3px;
+            background-color: var(--neuro-primary);
+            transition: .4s;
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--neuro-primary);
+        }
+        
+        input:checked + .neuro-switch-slider {
+            background-color: rgba(0, 243, 255, 0.3);
+        }
+        
+        input:checked + .neuro-switch-slider:before {
+            transform: translateX(24px);
+        }
+        
+        /* 实时状态栏 */
+        .neuro-status-bar {
+            background: rgba(10, 10, 26, 0.9);
+            border-top: 1px solid rgba(0, 243, 255, 0.3);
+            padding: 0.8rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            color: rgba(224, 247, 255, 0.8);
+            position: relative;
+            z-index: 100;
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .status-value {
+            color: var(--neuro-primary);
+            font-weight: bold;
+        }
+        
+        /* 神经缩放控制 */
+        .neuro-zoom-controls {
+            position: absolute;
+            bottom: 5rem;
+            right: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            z-index: 50;
+        }
+        
+        .zoom-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(10, 10, 26, 0.9);
+            border: 1px solid var(--neuro-primary);
+            color: var(--neuro-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+        }
+        
+        .zoom-btn:hover {
+            background: var(--neuro-primary);
+            color: var(--neuro-dark);
+            transform: scale(1.1);
+        }
+        
+        /* 神经网格背景 */
+        .neuro-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 243, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 243, 255, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            opacity: 0.3;
+            z-index: 1;
+        }
+        
+        /* 神经脉冲背景 */
+        .neuro-pulse-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        .pulse-dot {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--neuro-primary);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--neuro-primary);
+            animation: pulseGlow 2s infinite;
+        }
+        
+        @keyframes pulseGlow {
+            0%, 100% {
+                opacity: 0.3;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.8;
+                transform: scale(1.5);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="topology-container">
+        <!-- 神经科技工具栏 -->
+        <div class="neuro-toolbar">
+            <div class="toolbar-left">
+                <button class="neuro-tool-btn" onclick="addNeuron()">
+                    <i class="fas fa-plus"></i> 添加神经元
+                </button>
+                <button class="neuro-tool-btn" onclick="startConnection()">
+                    <i class="fas fa-link"></i> 创建连接
+                </button>
+                <button class="neuro-tool-btn" onclick="deleteSelected()">
+                    <i class="fas fa-trash"></i> 删除选中
+                </button>
+                <button class="neuro-tool-btn" onclick="clearCanvas()">
+                    <i class="fas fa-broom"></i> 清空画布
+                </button>
+            </div>
+            
+            <div class="toolbar-right">
+                <button class="neuro-tool-btn" onclick="saveTopology()">
+                    <i class="fas fa-save"></i> 保存拓扑
+                </button>
+                <button class="neuro-tool-btn" onclick="loadTopology()">
+                    <i class="fas fa-folder-open"></i> 加载拓扑
+                </button>
+                <button class="neuro-tool-btn" onclick="exportTopology()">
+                    <i class="fas fa-download"></i> 导出拓扑
+                </button>
+                <button class="neuro-tool-btn" onclick="simulateTopology()">
+                    <i class="fas fa-play"></i> 开始模拟
+                </button>
+            </div>
+        </div>
+
+        <!-- 神经拓扑画布 -->
+        <div class="topology-canvas-container">
+            <!-- 神经网格背景 -->
+            <div class="neuro-grid"></div>
+            
+            <!-- 神经脉冲背景 -->
+            <div class="neuro-pulse-bg" id="pulseBg"></div>
+            
+            <!-- 拓扑画布 -->
+            <div id="topology-canvas"></div>
+            
+            <!-- 神经属性面板 -->
+            <div class="neuro-properties" id="propertiesPanel">
+                <div class="properties-header">
+                    <i class="fas fa-sliders-h"></i> 神经属性
+                </div>
+                
+                <div class="property-group">
+                    <label class="property-label">神经元激活阈值</label>
+                    <input type="range" min="0" max="100" value="50" class="neuro-slider" id="activationThreshold">
+                    <div style="color: var(--neuro-primary); text-align: right; font-size: 0.9rem;">
+                        <span id="thresholdValue">50</span>%
+                    </div>
+                </div>
+                
+                <div class="property-group">
+                    <label class="property-label">学习速率</label>
+                    <input type="range" min="0" max="100" value="30" class="neuro-slider" id="learningRate">
+                    <div style="color: var(--neuro-primary); text-align: right; font-size: 0.9rem;">
+                        <span id="learningValue">0.3</span>
+                    </div>
+                </div>
+                
+                <div class="property-group">
+                    <label class="property-label">连接权重</label>
+                    <input type="range" min="-100" max="100" value="0" class="neuro-slider" id="connectionWeight">
+                    <div style="color: var(--neuro-primary); text-align: right; font-size: 0.9rem;">
+                        <span id="weightValue">0.0</span>
+                    </div>
+                </div>
+                
+                <div class="property-group">
+                    <label class="property-label" style="display: flex; justify-content: space-between;">
+                        <span>启用学习</span>
+                        <label class="neuro-switch">
+                            <input type="checkbox" id="enableLearning" checked>
+                            <span class="neuro-switch-slider"></span>
+                        </label>
+                    </label>
+                </div>
+                
+                <div class="property-group">
+                    <label class="property-label" style="display: flex; justify-content: space-between;">
+                        <span>启用脉冲</span>
+                        <label class="neuro-switch">
+                            <input type="checkbox" id="enablePulse" checked>
+                            <span class="neuro-switch-slider"></span>
+                        </label>
+                    </label>
+                </div>
+                
+                <div style="text-align: center; margin-top: 2rem;">
+                    <button class="neuro-tool-btn" onclick="applyProperties()" style="width: 100%;">
+                        <i class="fas fa-check"></i> 应用属性
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 神经缩放控制 -->
+            <div class="neuro-zoom-controls">
+                <button class="zoom-btn" onclick="zoomIn()">
+                    <i class="fas fa-plus"></i>
+                </button>
+                <button class="zoom-btn" onclick="zoomOut()">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <button class="zoom-btn" onclick="resetZoom()">
+                    <i class="fas fa-expand-arrows-alt"></i>
+                </button>
+                <button class="zoom-btn" onclick="toggleFullscreen()">
+                    <i class="fas fa-expand"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- 实时状态栏 -->
+        <div class="neuro-status-bar">
+            <div class="status-item">
+                <i class="fas fa-network-wired"></i>
+                <span>神经元数量: <span class="status-value" id="neuronCount">0</span></span>
+            </div>
+            
+            <div class="status-item">
+                <i class="fas fa-link"></i>
+                <span>连接数量: <span class="status-value" id="connectionCount">0</span></span>
+            </div>
+            
+            <div class="status-item">
+                <i class="fas fa-mouse-pointer"></i>
+                <span>光标位置: <span class="status-value" id="cursorPos">(0, 0)</span></span>
+            </div>
+            
+            <div class="status-item">
+                <i class="fas fa-bolt"></i>
+                <span>信号速度: <span class="status-value" id="signalSpeed">0</span>/秒</span>
+            </div>
+            
+            <div class="status-item">
+                <i class="fas fa-memory"></i>
+                <span>内存使用: <span class="status-value" id="memoryUsage">0</span>%</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/topology_editor.js') }}"></script>
+    <script>
+        // 拓扑编辑器核心逻辑
+        // 注意：这是演示版本，真实版本需要后端API支持

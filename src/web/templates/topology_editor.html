@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenGodOS - 拓扑编辑器</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/topology_editor.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+</head>
+<body>
+    <div class="topology-editor-container">
+        <!-- 顶部工具栏 -->
+        <div class="toolbar">
+            <div class="toolbar-left">
+                <button id="btn-new" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> 新建拓扑
+                </button>
+                <button id="btn-open" class="btn">
+                    <i class="fas fa-folder-open"></i> 打开
+                </button>
+                <button id="btn-save" class="btn btn-success">
+                    <i class="fas fa-save"></i> 保存
+                </button>
+                <button id="btn-export" class="btn">
+                    <i class="fas fa-download"></i> 导出
+                </button>
+                <div class="separator"></div>
+                <button id="btn-undo" class="btn" title="撤销 (Ctrl+Z)">
+                    <i class="fas fa-undo"></i>
+                </button>
+                <button id="btn-redo" class="btn" title="重做 (Ctrl+Y)">
+                    <i class="fas fa-redo"></i>
+                </button>
+                <div class="separator"></div>
+                <button id="btn-zoom-in" class="btn" title="放大">
+                    <i class="fas fa-search-plus"></i>
+                </button>
+                <button id="btn-zoom-out" class="btn" title="缩小">
+                    <i class="fas fa-search-minus"></i>
+                </button>
+                <button id="btn-zoom-fit" class="btn" title="适应视图">
+                    <i class="fas fa-expand"></i>
+                </button>
+                <button id="btn-grid-toggle" class="btn active" title="显示/隐藏网格">
+                    <i class="fas fa-th"></i>
+                </button>
+            </div>
+            <div class="toolbar-right">
+                <span class="status-text" id="status-text">就绪</span>
+                <div class="separator"></div>
+                <button id="btn-help" class="btn btn-info">
+                    <i class="fas fa-question-circle"></i> 帮助
+                </button>
+            </div>
+        </div>
+
+        <!-- 主编辑区域 -->
+        <div class="editor-main">
+            <!-- 左侧面板 -->
+            <div class="left-panel">
+                <div class="panel-header">
+                    <h3><i class="fas fa-shapes"></i> 元素库</h3>
+                </div>
+                <div class="panel-content">
+                    <!-- 神经元类型 -->
+                    <div class="element-category">
+                        <h4><i class="fas fa-brain"></i> 神经元</h4>
+                        <div class="element-list">
+                            <div class="element-item draggable" data-type="neuron" data-neuron-type="standard">
+                                <i class="fas fa-circle neuron-standard"></i>
+                                <span>标准神经元</span>
+                            </div>
+                            <div class="element-item draggable" data-type="neuron" data-neuron-type="input">
+                                <i class="fas fa-arrow-right neuron-input"></i>
+                                <span>输入神经元</span>
+                            </div>
+                            <div class="element-item draggable" data-type="neuron" data-neuron-type="output">
+                                <i class="fas fa-arrow-left neuron-output"></i>
+                                <span>输出神经元</span>
+                            </div>
+                            <div class="element-item draggable" data-type="neuron" data-neuron-type="hidden">
+                                <i class="fas fa-circle neuron-hidden"></i>
+                                <span>隐藏神经元</span>
+                            </div>
+                            <div class="element-item draggable" data-type="neuron" data-neuron-type="memory">
+                                <i class="fas fa-database neuron-memory"></i>
+                                <span>记忆神经元</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 层类型 -->
+                    <div class="element-category">
+                        <h4><i class="fas fa-layer-group"></i> 层</h4>
+                        <div class="element-list">
+                            <div class="element-item draggable" data-type="layer" data-layer-type="input">
+                                <i class="fas fa-arrow-right layer-input"></i>
+                                <span>输入层</span>
+                            </div>
+                            <div class="element-item draggable" data-type="layer" data-layer-type="hidden">
+                                <i class="fas fa-square layer-hidden"></i>
+                                <span>隐藏层</span>
+                            </div>
+                            <div class="element-item draggable" data-type="layer" data-layer-type="output">
+                                <i class="fas fa-arrow-left layer-output"></i>
+                                <span>输出层</span>
+                            </div>
+                            <div class="element-item draggable" data-type="layer" data-layer-type="convolutional">
+                                <i class="fas fa-th layer-convolutional"></i>
+                                <span>卷积层</span>
+                            </div>
+                            <div class="element-item draggable" data-type="layer" data-layer-type="pooling">
+                                <i class="fas fa-th-large layer-pooling"></i>
+                                <span>池化层</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 连接类型 -->
+                    <div class="element-category">
+                        <h4><i class="fas fa-link"></i> 连接</h4>
+                        <div class="element-list">
+                            <div class="element-item" data-type="connection" data-connection-type="excitatory">
+                                <i class="fas fa-arrow-up connection-excitatory"></i>
+                                <span>兴奋性连接</span>
+                            </div>
+                            <div class="element-item" data-type="connection" data-connection-type="inhibitory">
+                                <i class="fas fa-arrow-down connection-inhibitory"></i>
+                                <span>抑制性连接</span>
+                            </div>
+                            <div class="element-item" data-type="connection" data-connection-type="modulatory">
+                                <i class="fas fa-wave-square connection-modulatory"></i>
+                                <span>调节性连接</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 工具 -->
+                    <div class="element-category">
+                        <h4><i class="fas fa-tools"></i> 工具</h4>
+                        <div class="element-list">
+                            <div class="element-item tool-selector active" data-tool="select">
+                                <i class="fas fa-mouse-pointer"></i>
+                                <span>选择工具</span>
+                            </div>
+                            <div class="element-item tool-selector" data-tool="pan">
+                                <i class="fas fa-hand-paper"></i>
+                                <span>平移工具</span>
+                            </div>
+                            <div class="element-item tool-selector" data-tool="connect">
+                                <i class="fas fa-plug"></i>
+                                <span>连接工具</span>
+                            </div>
+                            <div class="element-item tool-selector" data-tool="delete">
+                                <i class="fas fa-trash"></i>
+                                <span>删除工具</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 中间画布区域 -->
+            <div class="canvas-container">
+                <div id="topology-canvas"></div>
+                <div class="canvas-overlay">
+                    <div class="canvas-info">
+                        <span id="canvas-coords">x: 0, y: 0</span>
+                        <span id="canvas-zoom">缩放: 100%</span>
+                        <span id="canvas-selection">选中: 0 个元素</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧属性面板 -->
+            <div class="right-panel">
+                <div class="panel-header">
+                    <h3><i class="fas fa-sliders-h"></i> 属性面板</h3>
+                </div>
+                <div class="panel-content" id="properties-panel">
+                    <div class="no-selection">
+                        <i class="fas fa-mouse-pointer"></i>
+                        <p>选择一个元素以查看和编辑其属性</p>
+                    </div>
+                </div>
+
+                <!-- 图层管理 -->
+                <div class="panel-section">
+                    <h4><i class="fas fa-layer-group"></i> 图层管理</h4>
+                    <div class="layer-list" id="layer-list">
+                        <!-- 图层项将通过JavaScript动态生成 -->
+                    </div>
+                    <button id="btn-add-layer" class="btn btn-sm btn-block">
+                        <i class="fas fa-plus"></i> 添加图层
+                    </button>
+                </div>
+
+                <!-- 拓扑统计 -->
+                <div class="panel-section">
+                    <h4><i class="fas fa-chart-bar"></i> 拓扑统计</h4>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-value" id="stat-neurons">0</div>
+                            <div class="stat-label">神经元</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="stat-connections">0</div>
+                            <div class="stat-label">连接</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="stat-layers">0</div>
+                            <div class="stat-label">层</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="stat-groups">0</div>
+                            <div class="stat-label">组</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部状态栏 -->
+        <div class="status-bar">
+            <div class="status-left">
+                <span id="current-tool">工具: 选择</span>
+                <span class="separator">|</span>
+                <span id="edit-mode">模式: 编辑</span>
+            </div>
+            <div class="status-center">
+                <span id="topology-name">未命名拓扑</span>
+            </div>
+            <div class="status-right">
+                <span id="fps-counter">FPS: 60</span>
+                <span class="separator">|</span>
+                <span id="memory-usage">内存: -- MB</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模态对话框 -->
+    <div id="modal-new-topology" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-plus"></i> 新建拓扑</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="topology-name">拓扑名称:</label>
+                    <input type="text" id="new-topology-name" class="form-control" placeholder="输入拓扑名称">
+                </div>
+                <div class="form-group">
+                    <label for="topology-template">模板:</label>
+                    <select id="topology-template" class="form-control">
+                        <option value="blank">空白拓扑</option>
+                        <option value="perceptron">感知机</option>
+                        <option value="mlp">多层感知机</option>
+                        <option value="cnn">卷积神经网络</option>
+                        <option value="rnn">循环神经网络</option>
+                        <option value="lstm">LSTM网络</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="topology-description">描述:</label>
+                    <textarea id="topology-description" class="form-control" rows="3" placeholder="拓扑描述"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary modal-close">取消</button>
+                <button id="btn-create-topology" class="btn btn-primary">创建</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 连接属性对话框 -->
+    <div id="modal-connection-properties" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-link"></i> 连接属性</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- 连接属性表单将通过JavaScript动态生成 -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary modal-close">取消</button>
+                <button id="btn-save-connection" class="btn btn-primary">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 帮助对话框 -->
+    <div id="modal-help" class="modal">
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <h3><i class="fas fa-question-circle"></i> 拓扑编辑器帮助</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="help-section">
+                    <h4>基本操作</h4>
+                    <ul>
+                        <li><strong>拖放元素</strong>: 从左侧面板拖放元素到画布</li>
+                        <li><strong>选择元素</strong>: 点击元素进行选择，按住Shift多选</li>
+                        <li><strong>移动元素</strong>: 拖动选中的元素</li>
+                        <li><strong>连接神经元</strong>: 使用连接工具，点击源神经元再点击目标神经元</li>
+                        <li><strong>删除元素</strong>: 选择元素后按Delete键或使用删除工具</li>
+                    </ul>
+                </div>
+                <div class="help-section">
+                    <h4>快捷键</h4>
+                    <div class="shortcut-grid">
+                        <div class="shortcut-item">
+                            <span class="shortcut-key">Ctrl + Z</span>
+                            <span class="shortcut-description">撤销</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <span class="shortcut-key">Ctrl + Y</span>
+                            <span class="shortcut-description">重做</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <span class="shortcut-key">Ctrl + S</span>
+                            <span class="shortcut-description">保存</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <span class="shortcut-key">Ctrl + O</span>
+                            <span class="shortcut-description">打开</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <span class="shortcut-key">Delete</span>
+                            <span class="shortcut-description">删除选中</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <span class="shortcut-key">Space</span>
+                            <span class="shortcut-description">平移工具</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <span class="shortcut-key">C</span>
+                            <span class="shortcut-description">连接工具</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <span class="shortcut-key">V</span>
+                            <span class="shortcut-description">选择工具</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="help-section">
+                    <h4>元素类型</h4>
+                    <ul>
+                        <li><strong>标准神经元</strong>: 基本处理单元</li>
+                        <li><strong>输入神经元</strong>: 接收外部输入</li>
+                        <li><strong>输出神经元</strong>: 产生输出结果</li>
+                        <li><strong>隐藏神经元</strong>: 中间处理单元</li>
+                        <li><strong>记忆神经元</strong>: 具有记忆功能</li>
+                        <li><strong>兴奋性连接</strong>: 增强目标神经元活动</li>
+                        <li><strong>抑制性连接</strong>: 抑制目标神经元活动</li>
+                        <li><strong>调节性连接</strong>: 调节连接强度</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary modal-close">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript文件 -->
+    <script src="{{ url_for('static', filename='js/topology_editor.js') }}"></script>
+</body>
+</html>

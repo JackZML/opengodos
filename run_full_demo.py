@@ -128,16 +128,16 @@ async def demo_ai_integration():
             print("⚠️  未设置DEEPSEEK_API_KEY环境变量，使用降级模式演示")
             print("   设置方法: export DEEPSEEK_API_KEY='your_api_key'")
         
-        from src.ai.llm_service import LLMService, LLMConfig
+        from src.ai.llm_service import AIService, AIConfig
         
-        # 创建LLM服务配置
-        config = LLMConfig(
+        # 创建AI服务配置
+        config = AIConfig(
             api_key=api_key,
             cache_enabled=True,
             timeout=30
         )
         
-        async with LLMService(config) as llm:
+        async with AIService(config) as ai_service:
             print(f"✅ LLM服务初始化成功")
             print(f"   提供商: {config.provider.value}")
             print(f"   缓存启用: {config.cache_enabled}")
@@ -149,7 +149,7 @@ async def demo_ai_integration():
                 {"role": "user", "content": "用一句话介绍数字生命系统。"}
             ]
             
-            response = await llm.chat_completion(messages, temperature=0.7)
+            response = await ai_service.chat_completion(messages, temperature=0.7)
             print(f"   AI回复: {response}")
             
             # 测试结构化补全
@@ -167,7 +167,7 @@ async def demo_ai_integration():
                 "surprise": "float"
             }
             
-            structured_response = await llm.structured_completion(
+            structured_response = await ai_service.structured_completion(
                 messages=messages,
                 response_format=response_format,
                 temperature=0.3
@@ -175,7 +175,7 @@ async def demo_ai_integration():
             print(f"   情感分析结果: {json.dumps(structured_response, indent=2, ensure_ascii=False)}")
             
             # 显示统计信息
-            stats = llm.get_stats()
+            stats = ai_service.get_stats()
             print(f"\n📈 AI服务统计:")
             print(f"   总调用次数: {stats['total_calls']}")
             print(f"   总Token数: {stats['total_tokens']}")

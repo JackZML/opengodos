@@ -1,0 +1,373 @@
+y] = d3.pointer(event);
+                const clickedNode = this.findNodeAt(x, y);
+                
+                if (clickedNode) {
+                    if (!this.connectionSource) {
+                        this.connectionSource = clickedNode;
+                        this.showNotification('请选择目标神经元');
+                    } else {
+                        const connection = {
+                            id: `connection_${Date.now()}`,
+                            source: this.connectionSource.id,
+                            target: clickedNode.id,
+                            weight: 1.0,
+                            type: 'excitatory',
+                            delay: 0.0
+                        };
+                        
+                        this.connections.push(connection);
+                        this.connectionSource = null;
+                        this.render();
+                        this.saveHistory('add_connection');
+                        this.showNotification('连接添加成功');
+                    }
+                }
+            }
+            
+            findNodeAt(x, y) {
+                const radius = 20;
+                return this.nodes.find(node => {
+                    const dx = node.x - x;
+                    const dy = node.y - y;
+                    return Math.sqrt(dx * dx + dy * dy) < radius;
+                });
+            }
+            
+            render() {
+                // 更新状态
+                this.updateStatus();
+                
+                // 清除现有元素
+                this.zoomGroup.selectAll('.neuron').remove();
+                this.zoomGroup.selectAll('.connection').remove();
+                
+                // 绘制连接
+                const links = this.zoomGroup.selectAll('.connection')
+                    .data(this.connections)
+                    .enter()
+                    .append('g')
+                    .attr('class', 'connection');
+                
+                links.append('line')
+                    .attr('class', 'connection-line')
+                    .attr('stroke', d => this.getConnectionColor(d.type))
+                    .attr('stroke-width', d => d.weight * 2)
+                    .attr('stroke-dasharray', '5,5')
+                    .attr('marker-end', 'url(#arrowhead)');
+                
+                // 绘制神经元
+                const nodes = this.zoomGroup.selectAll('.neuron')
+                    .data(this.nodes)
+                    .enter()
+                    .append('g')
+                    .attr('class', 'neuron')
+                    .attr('transform', d => `translate(${d.x}, ${d.y})`)
+                    .call(d3.drag()
+                        .on('start', this.dragStarted.bind(this))
+                        .on('drag', this.dragged.bind(this))
+                        .on('end', this.dragEnded.bind(this)));
+                
+                nodes.append('circle')
+                    .attr('class', 'neuron-circle')
+                    .attr('r', 20)
+                    .attr('fill', d => this.getNeuronColor(d.type));
+                
+                nodes.append('text')
+                    .attr('class', 'neuron-text')
+                    .attr('dy', 5)
+                    .text(d => d.name.substring(0, 8));
+                
+                // 更新力导向图
+                this.simulation.nodes(this.nodes);
+                this.simulation.force('link').links(this.connections);
+                this.simulation.alpha(1).restart();
+                
+                // 绑定数据更新
+                this.simulation.on('tick', () => {
+                    links.select('.connection-line')
+                        .attr('x1', d => d.source.x)
+                        .attr('y1', d => d.source.y)
+                        .attr('x2', d => d.target.x)
+                        .attr('y2', d => d.target.y);
+                    
+                    nodes.attr('transform', d => `translate(${d.x}, ${d.y})`);
+                });
+            }
+            
+            getNeuronColor(type) {
+                const colors = {
+                    'input': '#00ff00',
+                    'hidden': '#00f3ff',
+                    'output': '#ff00ff',
+                    'memory': '#ff9900',
+                    'sensory': '#9900ff'
+                };
+                return colors[type] || '#00f3ff';
+            }
+            
+            getConnectionColor(type) {
+                const colors = {
+                    'excitatory': '#00f3ff',
+                    'inhibitory': '#ff0000',
+                    'modulatory': '#ff9900',
+                    'plastic': '#00ff00'
+                };
+                return colors[type] || '#00f3ff';
+            }
+            
+            dragStarted(event, d) {
+                if (!event.active) this.simulation.alphaTarget(0.3).restart();
+                d.fx = d.x;
+                d.fy = d.y;
+            }
+            
+            dragged(event, d) {
+                d.fx = event.x;
+                d.fy = event.y;
+            }
+            
+            dragEnded(event, d) {
+                if (!event.active) this.simulation.alphaTarget(0);
+                d.fx = null;
+                d.fy = null;
+                this.saveHistory('move_neuron');
+            }
+            
+            updateZoom() {
+                this.zoomGroup.attr('transform', `scale(${this.zoom})`);
+            }
+            
+            loadSampleTopology() {
+                // 加载示例拓扑
+                this.nodes = [
+                    { id: 'input1', name: '输入1', type: 'input', x: 100, y: 200 },
+                    { id: 'hidden1', name: '隐藏1', type: 'hidden', x: 300, y: 200 },
+                    { id: 'hidden2', name: '隐藏2', type: 'hidden', x: 300, y: 100 },
+                    { id: 'output1', name: '输出1', type: 'output', x: 500, y: 200 }
+                ];
+                
+                this.connections = [
+                    { id: 'conn1', source: 'input1', target: 'hidden1', weight: 0.8, type: 'excitatory' },
+                    { id: 'conn2', source: 'input1', target: 'hidden2', weight: 0.6, type: 'excitatory' },
+                    { id: 'conn3', source: 'hidden1', target: 'output1', weight: 0.9, type: 'excitatory' },
+                    { id: 'conn4', source: 'hidden2', target: 'output1', weight: 0.7, type: 'excitatory' }
+                ];
+                
+                this.render();
+            }
+            
+            updateStatus() {
+                document.getElementById('neuronCount').textContent = 
+                    `神经元: ${this.nodes.length}`;
+                document.getElementById('connectionCount').textContent = 
+                    `连接: ${this.connections.length}`;
+            }
+            
+            saveHistory(action) {
+                const snapshot = {
+                    nodes: JSON.parse(JSON.stringify(this.nodes)),
+                    connections: JSON.parse(JSON.stringify(this.connections)),
+                    action: action,
+                    timestamp: new Date().toISOString()
+                };
+                
+                // 移除当前索引之后的历史
+                this.history = this.history.slice(0, this.historyIndex + 1);
+                this.history.push(snapshot);
+                this.historyIndex++;
+                
+                // 限制历史记录数量
+                if (this.history.length > 50) {
+                    this.history.shift();
+                    this.historyIndex--;
+                }
+                
+                // 更新撤销/重做按钮状态
+                this.updateHistoryButtons();
+            }
+            
+            updateHistoryButtons() {
+                document.getElementById('undoBtn').disabled = this.historyIndex <= 0;
+                document.getElementById('redoBtn').disabled = this.historyIndex >= this.history.length - 1;
+            }
+            
+            showNotification(message, type = 'success') {
+                const notification = document.getElementById('notification');
+                const messageEl = document.getElementById('notificationMessage');
+                
+                messageEl.textContent = message;
+                notification.className = 'neuro-notification show';
+                
+                if (type === 'success') {
+                    notification.style.borderColor = 'var(--neuro-primary)';
+                    messageEl.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
+                } else if (type === 'error') {
+                    notification.style.borderColor = 'var(--neuro-accent)';
+                    messageEl.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+                } else if (type === 'warning') {
+                    notification.style.borderColor = 'var(--neuro-secondary)';
+                    messageEl.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${message}`;
+                }
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            }
+            
+            showLoading() {
+                document.getElementById('loadingOverlay').style.display = 'flex';
+            }
+            
+            hideLoading() {
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }
+        }
+        
+        // 初始化编辑器
+        document.addEventListener('DOMContentLoaded', function() {
+            window.editor = new NeuroTopologyEditor();
+            
+            // 绑定按钮事件
+            document.getElementById('saveBtn').addEventListener('click', function() {
+                editor.showNotification('拓扑保存成功');
+            });
+            
+            document.getElementById('loadBtn').addEventListener('click', function() {
+                document.getElementById('templateModal').classList.add('active');
+            });
+            
+            document.getElementById('analyzeBtn').addEventListener('click', function() {
+                editor.showLoading();
+                setTimeout(() => {
+                    editor.hideLoading();
+                    editor.showNotification('拓扑分析完成');
+                }, 1500);
+            });
+            
+            document.getElementById('simulateBtn').addEventListener('click', function() {
+                editor.showLoading();
+                setTimeout(() => {
+                    editor.hideLoading();
+                    editor.showNotification('神经模拟运行中...', 'warning');
+                }, 1000);
+            });
+            
+            // 模态框关闭
+            document.getElementById('closeTemplateModal').addEventListener('click', function() {
+                document.getElementById('templateModal').classList.remove('active');
+            });
+            
+            // 模板选择
+            document.querySelectorAll('.template-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    const template = this.getAttribute('data-template');
+                    editor.showLoading();
+                    
+                    setTimeout(() => {
+                        editor.hideLoading();
+                        document.getElementById('templateModal').classList.remove('active');
+                        editor.showNotification(`已加载${template}模板`);
+                    }, 1000);
+                });
+            });
+            
+            // 属性面板交互
+            setupPropertyPanel();
+        });
+        
+        function setupPropertyPanel() {
+            // 滑块交互
+            const sliders = document.querySelectorAll('.neuro-slider');
+            sliders.forEach(slider => {
+                const thumb = slider.querySelector('.neuro-slider-thumb');
+                const track = slider.querySelector('.neuro-slider-track');
+                const valueSpan = slider.parentElement.querySelector('span');
+                
+                if (thumb && track && valueSpan) {
+                    let isDragging = false;
+                    
+                    thumb.addEventListener('mousedown', function(e) {
+                        isDragging = true;
+                        document.addEventListener('mousemove', onMouseMove);
+                        document.addEventListener('mouseup', onMouseUp);
+                    });
+                    
+                    function onMouseMove(e) {
+                        if (!isDragging) return;
+                        
+                        const rect = slider.getBoundingClientRect();
+                        let x = e.clientX - rect.left;
+                        x = Math.max(0, Math.min(x, rect.width));
+                        
+                        const percent = (x / rect.width) * 100;
+                        track.style.width = `${percent}%`;
+                        thumb.style.left = `${percent}%`;
+                        
+                        // 更新显示值
+                        if (valueSpan.id === 'thresholdValue') {
+                            valueSpan.textContent = (percent / 100).toFixed(2);
+                        } else if (valueSpan.id === 'learningRateValue') {
+                            valueSpan.textContent = (percent / 1000).toFixed(3);
+                        } else if (valueSpan.id === 'weightValue') {
+                            valueSpan.textContent = (percent / 100).toFixed(1);
+                        } else if (valueSpan.id === 'delayValue') {
+                            valueSpan.textContent = (percent / 100).toFixed(1);
+                        }
+                    }
+                    
+                    function onMouseUp() {
+                        isDragging = false;
+                        document.removeEventListener('mousemove', onMouseMove);
+                        document.removeEventListener('mouseup', onMouseUp);
+                    }
+                }
+            });
+            
+            // 应用属性按钮
+            document.getElementById('applyNeuronProps').addEventListener('click', function() {
+                if (window.editor && window.editor.selectedElement) {
+                    window.editor.showNotification('神经元属性已更新');
+                } else {
+                    window.editor.showNotification('请先选择神经元', 'warning');
+                }
+            });
+            
+            // 颜色选择器
+            const colorPicker = document.getElementById('connectionColor');
+            if (colorPicker) {
+                colorPicker.addEventListener('click', function() {
+                    // 简单颜色选择器实现
+                    const colors = ['#00f3ff', '#ff0000', '#00ff00', '#ff9900', '#9900ff', '#ffffff'];
+                    const currentColor = this.style.background;
+                    const currentIndex = colors.indexOf(currentColor);
+                    const nextIndex = (currentIndex + 1) % colors.length;
+                    this.style.background = colors[nextIndex];
+                });
+            }
+            
+            // 表单交互
+            document.querySelectorAll('.neuro-input, .neuro-select').forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.style.borderColor = 'var(--neuro-primary)';
+                    this.style.boxShadow = '0 0 10px rgba(0, 243, 255, 0.2)';
+                });
+                
+                input.addEventListener('blur', function() {
+                    this.style.borderColor = 'rgba(0, 243, 255, 0.2)';
+                    this.style.boxShadow = 'none';
+                });
+            });
+        }
+        
+        // 窗口大小调整
+        window.addEventListener('resize', function() {
+            if (window.editor) {
+                const width = window.innerWidth - 380;
+                const height = window.innerHeight - 120;
+                window.editor.svg.attr('width', width).attr('height', height);
+                window.editor.render();
+            }
+        });
+    </script>
+</body>
+</html>

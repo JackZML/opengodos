@@ -1,0 +1,66 @@
+{
+  "project_name": "OpenGodOS",
+  "project_root": "C:\\Users\\星余量化\\Desktop\\工作区\\数字生命\\opengodos",
+  "backup_root": "C:\\Users\\星余量化\\Desktop\\工作区\\数字生命\\opengodos_backups",
+  "backup_schedule": {
+    "daily": true,
+    "time": "23:00",
+    "keep_days": 30
+  },
+  "include_patterns": [
+    "*.py",
+    "*.html",
+    "*.css",
+    "*.js",
+    "*.md",
+    "*.txt",
+    "*.json",
+    "*.yaml",
+    "*.yml",
+    "*.toml",
+    "*.ini",
+    "*.cfg"
+  ],
+  "exclude_patterns": [
+    "__pycache__",
+    "*.pyc",
+    "*.log",
+    "*.tmp",
+    "*.bak",
+    "node_modules",
+    ".git",
+    ".vscode",
+    ".idea",
+    "venv",
+    "env",
+    "dist",
+    "build"
+  ],
+  "important_dirs": [
+    "src/",
+    "tests/",
+    "docs/",
+    "config/",
+    "data/",
+    "web/",
+    "scripts/",
+    "backups/"
+  ],
+  "important_files": [
+    "README.md",
+    "requirements.txt",
+    "setup.py",
+    "pyproject.toml",
+    "config.json",
+    ".gitignore",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "backup_metadata": {
+    "version": "1.0.0",
+    "created_by": "JackZML",
+    "email": "dnniu@foxmail.com",
+    "github": "https://github.com/JackZML/OpenGodOS",
+    "description": "OpenGodOS 数字生命操作系统备份配置"
+  }
+}

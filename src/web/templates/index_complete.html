@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenGodOS - 数字生命操作系统</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme_neuro.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme_neuro_footer.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* 神经脉冲背景 */
+        .neuro-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        
+        .neuro-pulse {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 243, 255, 0.3) 0%, rgba(0, 243, 255, 0) 70%);
+            animation: pulse 3s infinite ease-in-out;
+        }
+        
+        .neuro-line {
+            position: absolute;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(0, 243, 255, 0.5), transparent);
+            animation: linePulse 4s infinite ease-in-out;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; transform: scale(0.5); }
+            50% { opacity: 0.8; transform: scale(1); }
+        }
+        
+        @keyframes linePulse {
+            0%, 100% { opacity: 0.1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* 导航栏 */
+        .neuro-navbar {
+            background: rgba(10, 10, 26, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 243, 255, 0.2);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--neuro-primary), var(--neuro-accent));
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .logo-icon::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+            animation: shine 3s infinite linear;
+        }
+        
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--neuro-primary), var(--neuro-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+        
+        .nav-link {
+            color: rgba(224, 247, 255, 0.8);
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .nav-link:hover {
+            color: var(--neuro-primary);
+            background: rgba(0, 243, 255, 0.1);
+        }
+        
+        .nav-link.active {
+            color: var(--neuro-primary);
+            background: rgba(0, 243, 255, 0.15);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
+        }
+        
+        /* 主内容 */
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        /* 英雄区域 */
+        .hero-section {
+            text-align: center;
+            padding: 4rem 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, var(--neuro-primary), var(--neuro-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: rgba(224, 247, 255, 0.8);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+            line-height: 1.6;
+        }
+        
+        .pulse-wave {
+            width: 200px;
+            height: 200px;
+            margin: 2rem auto;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 243, 255, 0.1) 0%, transparent 70%);
+            animation: wave 3s infinite ease-in-out;
+        }
+        
+        @keyframes wave {
+            0%, 100% { transform: scale(0.8); opacity: 0.5; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+        }
+        
+        .neuro-activate {
+            background: linear-gradient(90deg, var(--neuro-primary), var(--neuro-accent));
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.8rem;
+            box-shadow: 0 5px 20px rgba(0, 243, 255, 0.3);
+        }
+        
+        .neuro-activate:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 243, 255, 0.5);
+        }
+        
+        /* 仪表板区域 */
+        .dashboard-section {
+            margin: 4rem 0;
+        }
+        
+        .section-title {
+            font-size: 2rem;
+            color: var(--neuro-primary);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .section-subtitle {
+            color: rgba(224, 247, 255, 0.7);
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .dashboard-card {
+            background: rgba(10, 10, 26, 0.7);
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            border-radius: 15px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--neuro-primary);
+            box-shadow: 0 10px 30px rgba(0, 243, 255, 0.2);
+        }
+        
+        .dashboard-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--neuro-primary), var(--neuro-accent));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .dashboard-card:hover::before {
+            opacity: 1;
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-title {
+            color: var(--neuro-primary);
+            font-size: 1.2rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        
+        .card-title i {
+            font-size: 1.4rem;
+        }
+        
+        .card-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--neuro-light);
+            margin: 0.5rem 0;
+            text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+        }
+        
+        .card-unit {
+            color: rgba(224, 247, 255, 0.7);
+            font-size: 1rem;
+            margin-left: 0.5rem;
+        }
+        
+        .card-subtitle {
+            color: rgba(224, 247, 255, 0.8);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+        
+        .progress-bar {
+            height: 6px;
+            background: rgba(0, 243, 255, 0.1);
+            border-radius: 3px;
+            margin: 1rem 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--neuro-primary), var(--neuro-accent));
+            border-radius: 3px;
+            transition: width 1s ease;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(0, 243, 255, 0.05);
+            border-radius: 8px;
+            border: 1px solid rgba(0, 243, 255, 0.1);
+        }
+        
+        .stat-label {
+            color: rgba(224, 247, 255, 0.7);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-value {
+            color: var(--neuro-primary);
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .last-update {
+            text-align: center;
+            color: rgba(224, 247, 255, 0.6);
+            font-size: 0.9rem;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(0, 243, 255, 0.1);
+        }
+        
+        /* 实时数据指示器 */
+        .real-time-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #00ff88;
+            font-size: 0.8rem;
+            animation: indicatorPulse 2s infinite;
+        }
+        
+        @keyframes indicatorPulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+        
+        .real-time-indicator::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: #00ff88;
+            border-radius: 50%;
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        /* 特性卡片区域 */
+        .features-section {
+            margin: 4rem 0;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .neuro-card {
+            background: rgba(10, 10, 26, 0.7);
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            border-radius: 15px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .neuro-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--neuro-primary);
+            box-shadow: 0 15px 35px rgba(0, 243, 255, 0.2);
+        }
+        
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--neuro-primary), var(--neuro-accent));
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 1.8rem;
+            color: white;
+        }
+        
+        .neuro-card h3 {
+            color: var(--neuro-primary);
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .neuro-card p {
+            color: rgba(224, 247, 255, 0.7);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+        
+        .neuro-btn {
+            background: rgba(0, 243, 255, 0.1);
+            color: var(--neuro-primary);
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .neuro-btn:hover {
+            background: rgba(0, 243, 255, 0.2);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
+        }
+        
+        /* 页脚样式已经在 theme_neuro_footer.css 中定义 */
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 神经脉冲背景 -->
+    <div class="neuro-background" id="neuroBackground"></div>
+    
+    <!-- 导航栏 -->
+    <nav class="neuro-navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <div class="logo-icon"></div>
+                <div class="logo-text">OpenGodOS</div>
+            </div>
+            <ul class="nav-links">
+                <li><a href="/" class="nav-link active"><i class="fas fa-brain"></i> 数字生命</a></li>
+                <li><a href="/topology" class="nav-link"><i class="fas fa-project-diagram"></i> 拓扑编辑器</a></li>
+                <li><a href="/api/data/dashboard" class="nav-link"><i class="fas fa-chart-line"></i> 实时数据</a></li>
+                <li><a href="https://github.com/JackZML/OpenGodOS" target="_blank" class="nav-link"><i class="fab fa-github"></i> GitHub</a></li>
+                <li><a href="https://github.com/JackZML/OpenGodOS/blob/main/README.md" target="_blank" class="nav-link"><i class="fas fa-book"></i> 文档</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- 主内容 -->
+    <main class="main-container">
+        <!-- 英雄区域 -->
+        <section class="hero-section">
+            <h1 class="hero-title">
+                <i class="fas fa-brain"></i> OpenGodOS
+            </h1>
+            <p class="hero-subtitle">
+                下一代数字生命操作系统 - 基于神经拓扑的人工智能框架
+            </p>
+            <div class="pulse-wave" style="margin: 1.5rem auto;"></div>
+            
+            <button class="neuro-activate" onclick="window.location.href='/topology'" style="margin-top: 1rem;">
+                <i class="fas fa-bolt"></i> 激活神经拓扑编辑器
+            </button>
+        </section>
+
+        <!-- 仪表板区域 -->
+        <section class="dashboard-section">
+            <h2 class="section-title">
+                <i class="fas fa-tachometer-alt"></i> 数字生命仪表板
+                <span class="real-time-indicator">实时数据</span>
+            </h2>
+            <p class="section-subtitle">
+                基于真实系统状态和神经拓扑的实时监控
+            </p>
+            
+            <div class="dashboard-grid">
+                <!-- 系统状态卡片 -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-microchip"></i> 系统状态
+                        </div>
+                        <div class="card-subtitle">实时监控</div>
+                    </div>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-label">CPU使用率</div>
+                            <div class="stat-value" id="cpuUsage">0%</div>
+                        </div>
+                        
+                        <div class="stat-item">
+                            <div class="stat-label">内存使用</div>
+                            <div class="stat-value" id="memoryUsage">0%</div>
+                        </div>
+                        
+                        <div class="stat-item">
+                            <div class="stat-label">磁盘使用</div>
+                            <div class="stat-value" id="diskUsage">0%</div>
+                        </div>
+                        
+                        <div class="stat-item">
+                            <div class="stat-label">运行时间</div>
+                            <div class="stat-value" id="uptime">0s</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 神经统计卡片 -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-network-wired"></i> 神经统计
+                        </div>
+                        <div class="card-subtitle">拓扑分析</div>
+                    </div>
+                    
+                    <div class="card-value">
+                        <span id="neuronCount">0</span>
+                        <span class="card-unit">神经元</span>
+                    </div>
+                    
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="neuronProgress" style="width: 0%"></div>
+                    </div>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-label">连接数量</div>
+                            <div class="stat-value" id="connectionCount">0</div>
+                        </div>
+                        
+                        <div class="stat-item">
+                            <div class="stat-label">活跃神经元</div>
+                            <div class="stat-value" id="activeNeurons">0</div>
+                        </div>
+                        
+                        <div class="stat-item">
+                            <div class="stat-label">信号速度</div>
+                            <div class="stat-value" id="signalSpeed">0</div>
+                        </div>
+                        
+                        <div class="stat-item">
+                            <div class="stat-label">学习速率</div>
+                            <div class="stat-value" id="learningRate">0.00</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="last-update" id="lastUpdate">
+                最后更新: 正在加载...
+            </div>
+        </section>
+
+        <!-- 特性卡片区域 -->
+        <section class="features-section">
+            <h2 class="section-title">
+                <i class="fas fa-star"></i> 核心特性
+            </h2>
+            <p class="section-subtitle">
+                下一代数字生命框架的先进功能
+            </p>
+            
+            <div class="features-grid">
+                <div class="neuro-card">
+                    <div class="card-icon">
+                        <i class="fas fa-project-diagram"></i>
+                    </div>
+                    <h3>神经拓扑编辑器</h3>
+                    <p>可视化创建和编辑复杂的神经网络拓扑，支持拖放操作和实时预览。</p>
+                    <button class="neuro-btn" onclick="window.location.href='/topology'">
+                        开始编辑
+                    </button>
+                </div>
+                
+                <div class="neuro-card">
+                    <div class="card-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3>智能学习算法</h3>
+                    <p>集成多种机器学习算法，支持监督学习、无监督学习和强化学习。</p>
+                    <button class="neuro-btn" onclick="window.location.href='https://github.com/JackZML/OpenGodOS/blob/main/docs/learning_algorithms.md'">
+                        了解更多
+                    </button>
+                </div>
+                
+                <div class="neuro-card">
+                    <div class="card-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h3>高性能计算</h3>
+                    <p>优化的计算引擎，支持GPU加速和分布式计算，处理大规模神经网络。</p>
+                    <button class="neuro-btn" onclick="window.location.href='/api/data/dashboard'">
+                        性能测试
+                    </button>
+                </div>
+                
+                <div class="neuro-card">
+                    <div class="card-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <h3>实时分析</h3>
+                    <p>全面的性能监控和数据分析工具，提供深入的神经活动洞察。</p>
+                    <button class="neuro-btn" onclick="window.location.href='/api/data/neural'">
+                        查看分析
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="neuro-footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3><i class="fas fa-brain"></i> OpenGodOS</h3>
+                <p style="color: rgba(224, 247, 255, 0.7); line-height: 1.6; margin-top: 0.5rem;">
+                    下一代数字生命操作系统，基于神经拓扑的人工智能框架，
+                    为创造真正的数字生命提供基础设施。
+                </p>
+                <div class="footer-stats" style="margin-top: 1rem;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.3rem;">
+                        <i class="fas fa-database" style="color: var(--neuro-primary);"></i>
+                        <span style="color: rgba(224, 247, 255, 0.8);">数据源: 真实生产系统</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fas fa-bolt" style="color: var(--neuro-accent);"></i>
+                        <span style="color: rgba(224, 247, 255, 0.8);">状态: 实时监控中</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-section">
+                <h3><i class="fas fa-rocket"></i> 核心功能</h3>
+                <ul class="footer-links">
+                    <li><a href="/topology"><i class="fas fa-project-diagram"></i> 神经拓扑编辑器</a></li>
+                    <li><a href="/api/data/dashboard" target="_blank"><i class="fas fa-chart-line"></i> 实时数据API</a></li>
+                    <li><a href="/api/data/system" target="_blank"><i class="fas fa-microchip"></i> 系统状态监控</a></li>
+                    <li><a href="/api/data/neural" target="_blank"><i class="fas fa-network-wired"></i> 神经拓扑分析</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h3><i class="fas fa-code"></i> 开发者资源</h3>
+                <ul class="footer-links">
+                    <li><a href="https://github.com/JackZML/OpenGodOS" target="_blank"><i class="fab fa-github"></i> GitHub仓库</a></li>
+                    <li><a href="https://github.com/JackZML" target="_blank"><i class="fas fa-user"></i> 开发者GitHub</a></li>
+                    <li><a href="https://docs.openclaw.ai" target="_blank"><i class="fas fa-book"></i> OpenClaw文档</a></li>
+                    <li><a href="https://github.com/JackZML/OpenGodOS/issues" target="_blank"><i class="fas fa-bug"></i> 报告问题</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h3><i class="fas fa-user-circle"></i> 联系开发者</h3>
+                <ul class="footer-links">
+                    <li><a href="mailto:dnniu@foxmail.com"><i class="fas fa-envelope"></i> 邮箱: dnniu@foxmail.com</a></li>
+                    <li><a href="https://github.com/JackZML" target="_blank"><i class="fab fa-github"></i> GitHub: JackZML</a></li>
+                    <li><a href="javascript:void(0);" onclick="showWechatInfo()"><i class="fab fa-weixin"></i> 微信: yuxism</a></li>
+                    <li><a href="https://github.com/JackZML/OpenGodOS/stargazers" target="_blank"><i class="fas fa-star"></i> 给项目Star</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer-bottom" style="text-align: center; padding: 1.5rem 0; border-top: 1px solid rgba(0, 243, 255, 0.1);">
+            <p style="color: rgba(224, 247, 255, 0.7); margin-bottom: 0.5rem;">
+                &copy; 2026 <strong style="color: var(--neuro-primary);">OpenGodOS</strong> - 数字生命操作系统
+            </p>
+            <p style="color: rgba(224, 247, 255, 0.6); font-size: 0.9rem; margin-bottom: 0.5rem;">
+                开发者: <strong style="color: var(--neuro-accent);">JackZML</strong> | 
+                GitHub: <a href="https://github.com/JackZML" target="_blank" style="color: rgba(0, 243, 255, 0.8);">JackZML</a> | 
+                邮箱: <a href="mailto:dnniu@foxmail.com" style="color: rgba(0, 243, 255, 0.8);">dnniu@foxmail.com</a>
+            </p>
+            <p style="color: rgba(224, 247, 255, 0.5); font-size: 0.85rem;">
+                版本: v1.0.0 | 构建: 2026-03-18 | 数据更新: 实时
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // OpenGodOS 真实数据仪表板
+        // 连接到真实API，显示实时系统状态和神经拓扑数据
+
+        // 神经脉冲背景动画
+        function createNeuroBackground() {
+            const background = document.getElementById('neuroBackground');
+            if (!background) return;
+            
+            background.innerHTML = '';
+            
+            // 创建神经脉冲点
+            for (let i = 0; i < 50; i++) {
+                const pulse = document.createElement('div');
+                pulse.className = 'neuro-pulse';
+                pulse.style.left = `${Math.random() * 100}%`;
+                pulse.style.top = `${Math.random() * 100}%`;
+                pulse.style.width = `${Math.random() * 100 + 50}px`;
+                pulse.style.height = pulse.style.width;
+                pulse.style.animationDelay = `${Math.random() * 5}s`;
+                background.appendChild(pulse);
+            }
+            
+            // 创建神经连接线
+            for (let i = 0; i < 20; i++) {
+                const line = document.createElement('div');
+                line.className = 'neuro-line';
+                line.style.left = `${Math.random() * 100}%`;
+                line.style.top = `${Math.random() * 100}%`;
+                line.style.width = `${Math.random() * 200 + 100}px`;
+                line.style.transform = `rotate(${Math.random() * 360}deg)`;
+                line.style.animationDelay = `${Math.random() * 3}s`;
+                background.appendChild(line);
+            }
+        }
+
+        // 获取真实数据
+        async function fetchRealData() {
+            try {
+                console.log('正在获取真实数据...');
+                const response = await fetch('/api/data/dashboard');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP错误! 状态码: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('获取到真实数据:', data);
+                updateDashboard(data);
+                return true;
+            } catch (error) {
+                console.error('获取真实数据失败:', error);
+                console.log('使用模拟数据作为后备方案...');
+                updateDashboardWithMockData();
+                return false;
+            }
+        }
+
+        // 使用真实数据更新仪表板
+        function updateDashboard(data) {
+            console.log('使用真实数据更新仪表板');
+            
+            // 更新系统状态
+            if (data.system) {
+                document.getElementById('cpuUsage').textContent = `${data.system.cpu_percent.toFixed(1)}%`;
+                document.getElementById('memoryUsage').textContent = `${data.system.memory_percent.toFixed(1)}%`;
+                document.getElementById('diskUsage').textContent = `${data.system.disk_usage.toFixed(1)}%`;
+                
+                // 格式化运行时间
+                const uptime = data.system.uptime || 0;
+                const hours = Math.floor(uptime / 3600);
+                const minutes = Math.floor((uptime % 3600) / 60);
+                const seconds = Math.floor(uptime % 60);
+                document.getElementById('uptime').textContent = `${hours}h ${minutes}m ${seconds}s`;
+            }
+            
+            // 更新神经统计
+            if (data.neural) {
+                const neuronCount = data.neural.neuron_count || 0;
+                const connectionCount = data.neural.connection_count || 0;
+                
+                document.getElementById('neuronCount').textContent = neuronCount.toLocaleString();
+                document.getElementById('connectionCount').textContent = connectionCount.toLocaleString();
+                document.getElementById('signalSpeed').textContent = (data.neural.signal_speed || 0).toLocaleString();
+                document.getElementById('activeNeurons').textContent = (data.neural.active_neurons || 0).toLocaleString();
+                document.getElementById('learningRate').textContent = (data.neural.learning_rate || 0).toFixed(2);
+                
+                // 更新进度条（基于神经元数量，最大1000个神经元为100%）
+                const neuronProgress = Math.min(100, (neuronCount / 1000) * 100);
+                document.getElementById('neuronProgress').style.width = `${neuronProgress}%`;
+            }
+            
+            // 更新时间戳
+            const timestamp = data.timestamp ? new Date(data.timestamp) : new Date();
+            const timeStr = timestamp.toLocaleTimeString('zh-CN');
+            const dateStr = timestamp.toLocaleDateString('zh-CN');
+            document.getElementById('lastUpdate').textContent = `最后更新: ${dateStr} ${timeStr} (真实数据)`;
+            
+            // 添加成功动画
+            addSuccessAnimation();
+        }
+
+        // 使用模拟数据更新仪表板（后备方案）
+        function updateDashboardWithMockData() {
+            console.log('使用模拟数据更新仪表板');
+            
+            // 模拟系统状态
+            const cpu = Math.random() * 40 + 10;
+            const memory = Math.random() * 40 + 30;
+            const disk = Math.random() * 30 + 20;
+            
+            document.getElementById('cpuUsage').textContent = `${cpu.toFixed(1)}%`;
+            document.getElementById('memoryUsage').textContent = `${memory.toFixed(1)}%`;
+            document.getElementById('diskUsage').textContent = `${disk.toFixed(1)}%`;
+            
+            // 模拟运行时间
+            const uptime = Math.random() * 86400 + 3600; // 1小时到1天之间
+            const hours = Math.floor(uptime / 3600);
+            const minutes = Math.floor((uptime % 3600) / 60);
+            document.getElementById('uptime').textContent = `${hours}h ${minutes}m`;
+            
+            // 模拟神经统计
+            const neuronCount = Math.floor(Math.random() * 150) + 50;
+            const connectionCount = Math.floor(neuronCount * (Math.random() * 4 + 2));
+            const signalSpeed = Math.floor(Math.random() * 1000000 + 500000);
+            const activeNeurons = Math.floor(neuronCount * (Math.random() * 0.5 + 0.3));
+            
+            document.getElementById('neuronCount').textContent = neuronCount.toLocaleString();
+            document.getElementById('connectionCount').textContent = connectionCount.toLocaleString();
+            document.getElementById('signalSpeed').textContent = signalSpeed.toLocaleString();
+            document.getElementById('activeNeurons').textContent = activeNeurons.toLocaleString();
+            document.getElementById('learningRate').textContent = (Math.random() * 0.09 + 0.01).toFixed(2);
+            
+            // 更新进度条
+            const neuronProgress = Math.min(100, (neuronCount / 1000) * 100);
+            document.getElementById('neuronProgress').style.width = `${neuronProgress}%`;
+            
+            // 更新时间戳
+            const timestamp = new Date();
+            const timeStr = timestamp.toLocaleTimeString('zh-CN');
+            const dateStr = timestamp.toLocaleDateString('zh-CN');
+            document.getElementById('lastUpdate').textContent = `最后更新: ${dateStr} ${timeStr} (模拟数据)`;
+        }
+
+        // 添加成功动画
+        function addSuccessAnimation() {
+            const cards = document.querySelectorAll('.dashboard-card');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.boxShadow = '0 0 30px rgba(0, 243, 255, 0.5)';
+                    setTimeout(() => {
+                        card.style.boxShadow = '';
+                    }, 500);
+                }, index * 100);
+            });
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('OpenGodOS 仪表板初始化...');
+            
+            // 创建神经脉冲背景
+            createNeuroBackground();
+            
+            // 初始加载数据
+            fetchRealData();
+            
+            // 每5秒更新数据
+            setInterval(fetchRealData, 5000);
+            
+            // 每30秒重新生成背景
+            setInterval(createNeuroBackground, 30000);
+            
+            // 添加鼠标跟随效果
+            document.addEventListener('mousemove', function(e) {
+                const x = e.clientX / window.innerWidth;
+                const y = e.clientY / window.innerHeight;
+                
+                document.documentElement.style.setProperty('--mouse-x', x);
+                document.documentElement.style.setProperty('--mouse-y', y);
+            });
+            
+            // 卡片悬停效果
+            const cards = document.querySelectorAll('.neuro-card, .dashboard-card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-10px) scale(1.02)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+            
+            // 按钮点击效果
+            const buttons = document.querySelectorAll('.neuro-btn, .neuro-activate');
+            buttons.forEach(button => {
+                button.addEventListener('click', function() {
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = 'scale(1)';
+                    }, 150);
+                });
+            });
+            
+            console.log('仪表板初始化完成');
+        });
+
+        // 添加键盘快捷键
+        document.addEventListener('keydown', function(e) {
+            // F5刷新数据
+            if (e.key === 'F5') {
+                e.preventDefault();
+                fetchRealData();
+            }
+            
+            // Ctrl+R刷新数据
+            if (e.ctrlKey && e.key === 'r') {
+                e.preventDefault();
+                fetchRealData();
+            }
+            
+            // ?显示帮助
+            if (e.key === '?') {
+                showHelp();
+            }
+        });
+
+        // 显示帮助信息
+        function showHelp() {
+            alert(`
+=== OpenGodOS 仪表板帮助 ===
+
+数据来源:
+- 系统状态: 真实系统监控数据 (CPU, 内存, 磁盘)
+- 神经统计: 基于拓扑文件的真实数据
+- 拓扑分析: 神经网络层间结构分析
+- 性能指标: 实时性能监控数据
+
+快捷键:
+F5 或 Ctrl+R - 刷新数据
+? - 显示此帮助
+
+数据更新:
+- 自动更新: 每5秒
+- 手动更新: 点击刷新按钮或使用快捷键
+
+状态指示:
+🟢 绿色 - 正常
+🟡 黄色 - 警告
+🔴 红色 - 错误
+
+如有问题，请检查:
+1. 网络连接
+2. 后端API服务
+3. 浏览器控制台
+            `);
+        }
+
+        // 显示微信信息
+        function showWechatInfo() {
+            alert(`
+=== 开发者微信信息 ===
+
+微信账号: yuxism
+开发者: JackZML
+GitHub: https://github.com/JackZML
+邮箱: dnniu@foxmail.com
+
+OpenGodOS 项目:
+- GitHub: https://github.com/JackZML/OpenGodOS
+- 问题反馈: https://github.com/JackZML/OpenGodOS/issues
+- Star项目: https://github.com/JackZML/OpenGodOS/stargazers
+
+欢迎交流数字生命技术！
+            `);
+        }
+    </script>
+</body>
+</html>
