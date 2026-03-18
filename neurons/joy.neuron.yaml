@@ -1,0 +1,243 @@
+# 喜悦神经元描述文件
+# 版本: 1.0.0
+# 作者: OpenGodOS Team
+# 许可证: MIT
+
+# 神经元基本信息
+id: "joy"
+name: "喜悦神经元"
+version: "1.0.0"
+author: "OpenGodOS Team"
+license: "MIT"
+description: |
+  模拟基本情绪"喜悦"。当接收到积极刺激时激活，并向决策神经元发送兴奋信号。
+  喜悦情绪具有自然衰减特性，需要持续的正向刺激来维持。
+
+# 接口定义
+interface:
+  inputs:
+    - name: "stimulus"
+      type: "float"
+      description: "来自感知神经元的刺激强度 (0.0-1.0)"
+      required: true
+      default: 0.0
+      
+    - name: "inhibit"
+      type: "float"
+      description: "来自其他情绪的抑制信号 (0.0-1.0)"
+      required: false
+      default: 0.0
+      
+    - name: "modulate"
+      type: "float"
+      description: "来自认知模块的调节信号 (-1.0到1.0)"
+      required: false
+      default: 0.0
+  
+  outputs:
+    - name: "activation"
+      type: "float"
+      description: "当前激活强度 (0.0-1.0)"
+      
+    - name: "signal"
+      type: "object"
+      description: "输出信号，包含激活强度和元数据"
+
+# 状态变量
+state:
+  - name: "intensity"
+    type: "float"
+    initial: 0.0
+    description: "当前情绪强度"
+    min: 0.0
+    max: 1.0
+    
+  - name: "decay_rate"
+    type: "float"
+    initial: 0.05
+    description: "自然衰减率"
+    min: 0.01
+    max: 0.2
+    
+  - name: "sensitivity"
+    type: "float"
+    initial: 0.8
+    description: "对刺激的敏感度"
+    min: 0.1
+    max: 2.0
+    
+  - name: "activation_threshold"
+    type: "float"
+    initial: 0.3
+    description: "激活阈值"
+    min: 0.1
+    max: 0.8
+    
+  - name: "last_update"
+    type: "float"
+    initial: 0.0
+    description: "最后更新时间戳"
+
+# 配置参数
+config:
+  - name: "max_intensity"
+    type: "float"
+    default: 1.0
+    description: "最大强度限制"
+    
+  - name: "min_intensity"
+    type: "float"
+    default: 0.0
+    description: "最小强度限制"
+    
+  - name: "update_interval"
+    type: "float"
+    default: 0.1
+    description: "更新间隔（秒）"
+    
+  - name: "signal_strength_multiplier"
+    type: "float"
+    default: 1.0
+    description: "输出信号强度乘数"
+
+# 处理逻辑（伪代码描述）
+logic:
+  initialization: |
+    # 初始化状态
+    state.intensity = 0.0
+    state.last_update = current_time()
+    
+  update: |
+    # 计算时间差
+    current_time = now()
+    time_delta = current_time - state.last_update
+    
+    # 自然衰减
+    decay_amount = state.intensity * state.decay_rate * time_delta
+    state.intensity = max(0.0, state.intensity - decay_amount)
+    
+    # 处理输入刺激
+    if inputs.stimulus > 0:
+        # 应用敏感度调节
+        effective_stimulus = inputs.stimulus * state.sensitivity
+        # 应用抑制
+        if inputs.inhibit > 0:
+            effective_stimulus = max(0.0, effective_stimulus - inputs.inhibit)
+        # 应用调节
+        if inputs.modulate != 0:
+            effective_stimulus = effective_stimulus * (1.0 + inputs.modulate)
+        
+        # 更新强度
+        state.intensity = min(config.max_intensity, 
+                             state.intensity + effective_stimulus * time_delta)
+    
+    # 更新最后更新时间
+    state.last_update = current_time
+    
+    # 检查是否激活
+    is_active = state.intensity >= state.activation_threshold
+    
+  output: |
+    # 准备输出
+    outputs.activation = state.intensity
+    
+    # 创建输出信号
+    if is_active:
+        signal_strength = state.intensity * config.signal_strength_multiplier
+        outputs.signal = {
+            "source": neuron_id,
+            "type": "emotion",
+            "subtype": "joy",
+            "strength": signal_strength,
+            "intensity": state.intensity,
+            "timestamp": state.last_update,
+            "active": is_active
+        }
+    else:
+        outputs.signal = None
+
+# 事件处理
+events:
+  - name: "activated"
+    condition: "state.intensity >= state.activation_threshold and previous_intensity < state.activation_threshold"
+    action: |
+      # 激活事件
+      log_info(f"喜悦神经元激活，强度: {state.intensity:.2f}")
+      # 可以触发其他行为
+      
+  - name: "deactivated"
+    condition: "state.intensity < state.activation_threshold and previous_intensity >= state.activation_threshold"
+    action: |
+      # 失活事件
+      log_info(f"喜悦神经元失活")
+      
+  - name: "peak_intensity"
+    condition: "state.intensity > 0.9"
+    action: |
+      # 达到峰值强度
+      log_info(f"喜悦达到峰值强度: {state.intensity:.2f}")
+
+# 监控指标
+metrics:
+  - name: "activation_count"
+    type: "counter"
+    description: "激活次数统计"
+    
+  - name: "total_stimulus"
+    type: "gauge"
+    description: "累计刺激量"
+    
+  - name: "average_intensity"
+    type: "gauge"
+    description: "平均强度"
+
+# 依赖关系
+dependencies:
+  - name: "time"
+    description: "时间函数"
+    
+  - name: "math"
+    description: "数学函数"
+
+# 测试用例
+tests:
+  - name: "基础激活测试"
+    inputs:
+      stimulus: 0.5
+      inhibit: 0.0
+      modulate: 0.0
+    expected_outputs:
+      activation: "> 0.3"
+      signal: "not None"
+      
+  - name: "抑制测试"
+    inputs:
+      stimulus: 0.5
+      inhibit: 0.3
+      modulate: 0.0
+    expected_outputs:
+      activation: "< 0.3"
+      signal: "None"
+      
+  - name: "衰减测试"
+    setup: |
+      state.intensity = 0.8
+    inputs:
+      stimulus: 0.0
+    steps: 10
+    expected_outputs:
+      activation: "< 0.5"
+
+# 元数据
+metadata:
+  created: "2026-03-18"
+  updated: "2026-03-18"
+  category: "emotion"
+  tags: ["emotion", "joy", "basic"]
+  complexity: "simple"
+  
+# 文档链接
+documentation:
+  api: "/docs/neurons/joy"
+  examples: "/examples/joy"
+  source: "https://github.com/opengodos/neurons/joy"

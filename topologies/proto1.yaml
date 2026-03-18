@@ -1,0 +1,516 @@
+# OpenGodOS Proto-1 拓扑配置
+# 版本: 1.0.0
+# 描述: 基础五情绪数字生命系统
+
+# 拓扑基本信息
+name: "Proto-1 基础数字生命"
+version: "1.0.0"
+author: "OpenGodOS Team"
+description: |
+  基础五情绪数字生命系统，包含感知、情绪、记忆、决策模块。
+  这是一个完整的数字生命原型，能够处理输入、产生情绪反应、存储记忆并做出决策。
+
+# 神经元定义
+neurons:
+  # 感知神经元
+  - id: "perception_visual"
+    type: "perception"
+    subtype: "visual"
+    description: "视觉感知神经元"
+    config:
+      sensitivity: 0.8
+      processing_delay: 0.05
+      
+  - id: "perception_audio"
+    type: "perception"
+    subtype: "audio"
+    description: "听觉感知神经元"
+    config:
+      sensitivity: 0.7
+      processing_delay: 0.03
+      
+  - id: "perception_text"
+    type: "perception"
+    subtype: "text"
+    description: "文本感知神经元"
+    config:
+      sensitivity: 0.9
+      processing_delay: 0.02
+      
+  - id: "perception_ai_enhanced"
+    type: "ai_perception"
+    description: "AI增强感知神经元"
+    config:
+      ai_enabled: true
+      prompt_template: "分析输入内容: {input}"
+      temperature: 0.3
+
+  # 情绪神经元
+  - id: "emotion_joy"
+    type: "emotion"
+    subtype: "joy"
+    description: "喜悦情绪神经元"
+    config:
+      decay_rate: 0.05
+      activation_threshold: 0.3
+      max_intensity: 1.0
+      
+  - id: "emotion_sadness"
+    type: "emotion"
+    subtype: "sadness"
+    description: "悲伤情绪神经元"
+    config:
+      decay_rate: 0.03
+      activation_threshold: 0.25
+      max_intensity: 1.0
+      
+  - id: "emotion_anger"
+    type: "emotion"
+    subtype: "anger"
+    description: "愤怒情绪神经元"
+    config:
+      decay_rate: 0.08
+      activation_threshold: 0.35
+      max_intensity: 1.0
+      
+  - id: "emotion_fear"
+    type: "emotion"
+    subtype: "fear"
+    description: "恐惧情绪神经元"
+    config:
+      decay_rate: 0.06
+      activation_threshold: 0.3
+      max_intensity: 1.0
+      
+  - id: "emotion_surprise"
+    type: "emotion"
+    subtype: "surprise"
+    description: "惊讶情绪神经元"
+    config:
+      decay_rate: 0.15
+      activation_threshold: 0.4
+      max_intensity: 1.0
+
+  # 记忆神经元
+  - id: "memory_short_term"
+    type: "memory"
+    subtype: "short_term"
+    description: "短时记忆神经元"
+    config:
+      capacity: 100
+      retention_time: 300  # 5分钟
+      decay_rate: 0.1
+      
+  - id: "memory_long_term"
+    type: "memory"
+    subtype: "long_term"
+    description: "长时记忆神经元"
+    config:
+      capacity: 1000
+      retention_time: 2592000  # 30天
+      consolidation_threshold: 0.7
+
+  # 决策神经元
+  - id: "decision_basic"
+    type: "decision"
+    subtype: "basic"
+    description: "基础决策神经元"
+    config:
+      decision_threshold: 0.5
+      confidence_required: 0.6
+      
+  - id: "decision_ai_enhanced"
+    type: "ai_decision"
+    description: "AI增强决策神经元"
+    config:
+      ai_enabled: true
+      prompt_template: "基于情绪{emotions}和记忆{memories}做出决策"
+      temperature: 0.7
+
+  # 行为神经元
+  - id: "behavior_verbal"
+    type: "behavior"
+    subtype: "verbal"
+    description: "言语行为神经元"
+    config:
+      response_delay: 0.2
+      personality_traits:
+        openness: 0.7
+        conscientiousness: 0.6
+        extraversion: 0.5
+        agreeableness: 0.8
+        neuroticism: 0.3
+        
+  - id: "behavior_ai_verbal"
+    type: "ai_behavior"
+    description: "AI言语行为神经元"
+    config:
+      ai_enabled: true
+      prompt_template: "以{personality}性格回复: {context}"
+      temperature: 0.8
+
+  # 监控神经元
+  - id: "monitor_system"
+    type: "monitor"
+    description: "系统监控神经元"
+    config:
+      update_interval: 1.0
+      metrics_enabled: true
+      alert_threshold: 0.8
+
+# 连接定义
+connections:
+  # 感知到情绪的连接
+  - from: "perception_visual"
+    to: "emotion_joy"
+    weight: 0.6
+    type: "excitatory"
+    description: "视觉积极刺激引发喜悦"
+    
+  - from: "perception_audio"
+    to: "emotion_joy"
+    weight: 0.5
+    type: "excitatory"
+    description: "听觉积极刺激引发喜悦"
+    
+  - from: "perception_text"
+    to: "emotion_joy"
+    weight: 0.7
+    type: "excitatory"
+    description: "文本积极刺激引发喜悦"
+    
+  - from: "perception_text"
+    to: "emotion_sadness"
+    weight: 0.6
+    type: "excitatory"
+    description: "文本消极刺激引发悲伤"
+    
+  - from: "perception_text"
+    to: "emotion_anger"
+    weight: 0.5
+    type: "excitatory"
+    description: "文本攻击性刺激引发愤怒"
+    
+  - from: "perception_ai_enhanced"
+    to: "emotion_joy"
+    weight: 0.8
+    type: "excitatory"
+    description: "AI分析积极结果引发喜悦"
+    
+  - from: "perception_ai_enhanced"
+    to: "emotion_sadness"
+    weight: 0.7
+    type: "excitatory"
+    description: "AI分析消极结果引发悲伤"
+
+  # 情绪之间的相互抑制
+  - from: "emotion_joy"
+    to: "emotion_sadness"
+    weight: 0.4
+    type: "inhibitory"
+    description: "喜悦抑制悲伤"
+    
+  - from: "emotion_sadness"
+    to: "emotion_joy"
+    weight: 0.4
+    type: "inhibitory"
+    description: "悲伤抑制喜悦"
+    
+  - from: "emotion_anger"
+    to: "emotion_fear"
+    weight: 0.3
+    type: "inhibitory"
+    description: "愤怒抑制恐惧"
+    
+  - from: "emotion_fear"
+    to: "emotion_anger"
+    weight: 0.3
+    type: "inhibitory"
+    description: "恐惧抑制愤怒"
+
+  # 情绪到记忆的连接
+  - from: "emotion_joy"
+    to: "memory_short_term"
+    weight: 0.7
+    type: "excitatory"
+    description: "喜悦情绪增强记忆"
+    
+  - from: "emotion_sadness"
+    to: "memory_short_term"
+    weight: 0.6
+    type: "excitatory"
+    description: "悲伤情绪增强记忆"
+    
+  - from: "emotion_anger"
+    to: "memory_short_term"
+    weight: 0.8
+    type: "excitatory"
+    description: "愤怒情绪强烈增强记忆"
+    
+  - from: "memory_short_term"
+    to: "memory_long_term"
+    weight: 0.5
+    type: "excitatory"
+    description: "短时记忆巩固为长时记忆"
+
+  # 情绪到决策的连接
+  - from: "emotion_joy"
+    to: "decision_basic"
+    weight: 0.6
+    type: "excitatory"
+    description: "喜悦促进积极决策"
+    
+  - from: "emotion_sadness"
+    to: "decision_basic"
+    weight: 0.4
+    type: "inhibitory"
+    description: "悲伤抑制决策"
+    
+  - from: "emotion_anger"
+    to: "decision_basic"
+    weight: 0.7
+    type: "excitatory"
+    description: "愤怒促进快速决策"
+    
+  - from: "emotion_fear"
+    to: "decision_basic"
+    weight: 0.3
+    type: "inhibitory"
+    description: "恐惧抑制决策"
+    
+  - from: "emotion_surprise"
+    to: "decision_basic"
+    weight: 0.5
+    type: "excitatory"
+    description: "惊讶促进重新评估"
+
+  # 记忆到决策的连接
+  - from: "memory_short_term"
+    to: "decision_basic"
+    weight: 0.6
+    type: "excitatory"
+    description: "近期记忆影响决策"
+    
+  - from: "memory_long_term"
+    to: "decision_basic"
+    weight: 0.4
+    type: "excitatory"
+    description: "长期经验影响决策"
+    
+  - from: "memory_short_term"
+    to: "decision_ai_enhanced"
+    weight: 0.8
+    type: "excitatory"
+    description: "近期记忆提供给AI决策"
+    
+  - from: "memory_long_term"
+    to: "decision_ai_enhanced"
+    weight: 0.7
+    type: "excitatory"
+    description: "长期经验提供给AI决策"
+
+  # 决策到行为的连接
+  - from: "decision_basic"
+    to: "behavior_verbal"
+    weight: 0.9
+    type: "excitatory"
+    description: "基础决策触发言语行为"
+    
+  - from: "decision_ai_enhanced"
+    to: "behavior_ai_verbal"
+    weight: 0.9
+    type: "excitatory"
+    description: "AI决策触发AI言语行为"
+    
+  - from: "decision_ai_enhanced"
+    to: "behavior_verbal"
+    weight: 0.5
+    type: "excitatory"
+    description: "AI决策影响基础言语行为"
+
+  # 行为到感知的反馈连接
+  - from: "behavior_verbal"
+    to: "perception_text"
+    weight: 0.3
+    type: "excitatory"
+    description: "自身言语作为感知输入"
+    
+  - from: "behavior_ai_verbal"
+    to: "perception_text"
+    weight: 0.4
+    type: "excitatory"
+    description: "AI言语作为感知输入"
+
+  # 监控连接
+  - from: "emotion_joy"
+    to: "monitor_system"
+    weight: 1.0
+    type: "excitatory"
+    description: "监控喜悦情绪"
+    
+  - from: "emotion_sadness"
+    to: "monitor_system"
+    weight: 1.0
+    type: "excitatory"
+    description: "监控悲伤情绪"
+    
+  - from: "emotion_anger"
+    to: "monitor_system"
+    weight: 1.0
+    type: "excitatory"
+    description: "监控愤怒情绪"
+    
+  - from: "emotion_fear"
+    to: "monitor_system"
+    weight: 1.0
+    type: "excitatory"
+    description: "监控恐惧情绪"
+    
+  - from: "emotion_surprise"
+    to: "monitor_system"
+    weight: 1.0
+    type: "excitatory"
+    description: "监控惊讶情绪"
+    
+  - from: "memory_short_term"
+    to: "monitor_system"
+    weight: 0.8
+    type: "excitatory"
+    description: "监控短时记忆"
+    
+  - from: "memory_long_term"
+    to: "monitor_system"
+    weight: 0.6
+    type: "excitatory"
+    description: "监控长时记忆"
+    
+  - from: "decision_basic"
+    to: "monitor_system"
+    weight: 0.9
+    type: "excitatory"
+    description: "监控基础决策"
+    
+  - from: "decision_ai_enhanced"
+    to: "monitor_system"
+    weight: 0.9
+    type: "excitatory"
+    description: "监控AI决策"
+
+# 系统配置
+system:
+  name: "Proto-1 Digital Life"
+  version: "1.0.0"
+  description: "基础五情绪数字生命系统"
+  
+  runtime:
+    update_interval: 0.1  # 思维步间隔（秒）
+    max_steps: 10000      # 最大运行步数
+    realtime_mode: true   # 实时模式
+    
+  logging:
+    level: "INFO"
+    file: "logs/proto1.log"
+    console: true
+    
+  monitoring:
+    enabled: true
+    port: 9090
+    metrics_interval: 1.0
+    
+  persistence:
+    enabled: true
+    save_interval: 60     # 保存间隔（秒）
+    file: "states/proto1_state.json"
+    
+  security:
+    isolation_level: "process"
+    resource_limits:
+      cpu: 0.5
+      memory_mb: 512
+      max_neurons: 100
+
+# 初始化状态
+initial_state:
+  emotions:
+    joy: 0.1
+    sadness: 0.1
+    anger: 0.05
+    fear: 0.05
+    surprise: 0.0
+    
+  memory:
+    short_term: []
+    long_term: []
+    
+  personality:
+    openness: 0.7
+    conscientiousness: 0.6
+    extraversion: 0.5
+    agreeableness: 0.8
+    neuroticism: 0.3
+
+# 测试场景
+test_scenarios:
+  - name: "积极交互测试"
+    description: "测试积极输入下的系统反应"
+    inputs:
+      - type: "text"
+        content: "你好，今天天气真好！"
+        strength: 0.8
+        
+    expected_behaviors:
+      - emotion_joy: "> 0.5"
+      - behavior_verbal: "包含积极回应"
+      
+  - name: "消极交互测试"
+    description: "测试消极输入下的系统反应"
+    inputs:
+      - type: "text"
+        content: "我感到很失望"
+        strength: 0.7
+        
+    expected_behaviors:
+      - emotion_sadness: "> 0.4"
+      - behavior_verbal: "包含同理心回应"
+      
+  - name: "记忆测试"
+    description: "测试记忆形成和检索"
+    inputs:
+      - type: "text"
+        content: "记住这个重要信息：OpenGodOS是数字生命框架"
+        strength: 0.9
+        
+    expected_behaviors:
+      - memory_short_term: "包含输入信息"
+      - memory_long_term: "经过巩固后包含信息"
+
+# 元数据
+metadata:
+  created: "2026-03-18"
+  updated: "2026-03-18"
+  category: "prototype"
+  tags: ["basic", "emotion", "memory", "decision"]
+  complexity: "medium"
+  
+  documentation:
+    design: "/docs/topologies/proto1/design"
+    usage: "/docs/topologies/proto1/usage"
+    api: "/api/topologies/proto1"
+    
+  performance:
+    estimated_neurons: 15
+    estimated_connections: 35
+    estimated_memory_mb: 50
+    estimated_cpu_percent: 10
+    
+  compatibility:
+    min_opengodos_version: "0.1.0"
+    tested_versions: ["0.1.0"]
+    
+  license:
+    type: "MIT"
+    file: "LICENSE"
+    
+  repository:
+    url: "https://github.com/opengodos/topologies/proto1"
+    issues: "https://github.com/opengodos/topologies/issues"

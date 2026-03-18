@@ -1,0 +1,21 @@
+{
+  "started_at": "2026-03-18T07:24:03.948707",
+  "monitor_runs": [
+    {
+      "timestamp": "2026-03-18T07:24:03.948707",
+      "checks": {
+        "system_time": {
+          "period_type": "rest",
+          "period_name": "休息时段"
+        },
+        "critical_files": true,
+        "system_health": true,
+        "next_schedule": {
+          "next_period": "发布时段",
+          "wait_minutes": 36
+        }
+      }
+    }
+  ],
+  "system_status": "healthy"
+}
