@@ -12,6 +12,88 @@
 
 ### 安装方法
 
+
+## 配置
+
+### 环境变量配置
+OpenGodOS使用环境变量进行配置。首先复制示例配置文件：
+
+```bash
+# 复制示例配置
+cp .env.example .env
+
+# 编辑配置文件
+# 使用文本编辑器打开.env文件，设置必要的配置
+```
+
+### 关键配置项
+
+#### AI服务配置
+```bash
+# .env文件内容示例
+AI_API_KEY=your_actual_api_key_here        # AI服务API密钥
+AI_PROVIDER=ai_service                     # AI服务提供商
+AI_BASE_URL=https://api.ai-service.com/v1  # API基础URL
+AI_TIMEOUT=30                              # 请求超时时间(秒)
+```
+
+#### 系统配置
+```bash
+SYSTEM_NAME=OpenGodOS                      # 系统名称
+LOG_LEVEL=INFO                             # 日志级别
+NEURON_UPDATE_INTERVAL=0.1                 # 神经元更新间隔(秒)
+```
+
+#### Web界面配置
+```bash
+WEB_HOST=127.0.0.1                         # Web服务器主机
+WEB_PORT=5000                              # Web服务器端口
+WEB_SECRET_KEY=change_this_secret_key      # Web会话密钥
+```
+
+### 配置验证
+配置完成后，运行配置检查脚本：
+
+```bash
+# 检查配置
+python scripts/check_config.py
+
+# 如果缺少必要配置，脚本会提示
+```
+
+### 多环境配置
+对于不同环境，可以创建不同的配置文件：
+
+```bash
+# 开发环境
+cp .env.example .env.development
+
+# 测试环境  
+cp .env.example .env.test
+
+# 生产环境
+cp .env.example .env.production
+
+# 使用特定环境配置
+export ENV_FILE=.env.production
+python run_full_demo.py
+```
+
+### 安全配置建议
+1. **API密钥安全**: 永远不要将真实API密钥提交到版本控制
+2. **环境隔离**: 开发、测试、生产环境使用不同的配置
+3. **密钥轮换**: 定期更换API密钥
+4. **访问控制**: 限制API访问权限
+
+### 故障排除
+如果配置出现问题，检查以下事项：
+
+1. **文件权限**: 确保.env文件有正确的读写权限
+2. **格式正确**: 确保.env文件格式正确，每行都是`KEY=VALUE`格式
+3. **变量引用**: 在代码中正确引用环境变量：`os.getenv("AI_API_KEY")`
+4. **重启服务**: 修改配置后重启相关服务
+
+配置完成后，系统就可以正常运行了。
 #### 方法一：从GitHub克隆（推荐）
 ```bash
 # 克隆仓库

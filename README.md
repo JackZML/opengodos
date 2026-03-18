@@ -6,6 +6,26 @@
 
 OpenGodOS is a biologically-inspired digital life framework that simulates neural networks, emotions, memory, and decision-making processes.
 
+## 🚀 Features
+
+### Core Architecture
+- **Neuron Description System**: Declarative YAML-based neuron definitions
+- **Neural Topology**: Configurable neural network connections
+- **Signal Propagation**: Efficient inter-neuron communication
+- **Memory Systems**: Short-term and long-term memory management
+
+### AI Integration
+- **LLM Service**: AI-enhanced neuron capabilities
+- **Fallback Modes**: Graceful degradation without API keys
+- **Caching System**: Performance optimization for AI calls
+- **Structured Output**: JSON-based AI responses
+
+### Visualization & Interaction
+- **Web Interface**: Real-time neural network visualization
+- **REST API**: Programmatic control and monitoring
+- **Simulation Engine**: High-performance digital life simulation
+- **Data Export**: JSON, CSV, and visualization exports
+
 ## 🚀 Quick Start
 
 ```bash
